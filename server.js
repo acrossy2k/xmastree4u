@@ -8,12 +8,12 @@ app.use(express.static('public'));
 app.get('/api/epa/*', async (req, res) => {
     try {
         const endpoint = req.params[0];
-        const epaUrl = `https://www.fueleconomy.gov/ws/rest/vehicle/${endpoint}`;
+        const epaUrl = '/api/epa/menu/year';
         
         const response = await fetch(epaUrl, {
             headers: {
                 'Accept': 'application/json',
-                'User-Agent': 'CarbonCalculatorApp/1.0 (your_email@example.com)'
+                'User-Agent': 'XmasTree4U/1.0 (acrossy2k@gmail.com)'
             }
         });
         
