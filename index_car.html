@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Carbon Footprint Calculator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .calculator-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #111827;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+        }
+        select:disabled, input:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+        .dynamic-section {
+            display: none;
+            padding: 15px;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .dynamic-section.active {
+            display: block;
+        }
+        small {
+            color: #6b7280;
+            font-weight: normal;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        button:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 6px;
+            color: #065f46;
+            text-align: center;
+            display: none;
+        }
+        .co2-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+            margin: 8px 0;
+        }
+        .co2-detail {
+            font-size: 0.85rem;
+            color: #047857;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>Carbon Footprint Calculator</h2>
+    
+    <div class="form-group">
+        <label for="year">1. Vehicle Year</label>
+        <select id="year"><option value="">Loading years...</option></select>
+    </div>
+    <div class="form-group">
+        <label for="make">2. Make</label>
+        <select id="make" disabled><option value="">Select a Year first</option></select>
+    </div>
+    <div class="form-group">
+        <label for="model">3. Model</label>
+        <select id="model" disabled><option value="">Select a Make first</option></select>
+    </div>
+    <div class="form-group">
+        <label for="option">4. Specific Trim/Engine</label>
+        <select id="option" disabled><option value="">Select a Model first</option></select>
+    </div>
+
+    <div id="standard-inputs" class="dynamic-section">
+        <div class="form-group">
+            <label for="distance">Total Distance (miles)</label>
+            <input type="number" id="distance" placeholder="e.g., 150" min="1">
+        </div>
+    </div>
+
+    <div id="phev-inputs" class="dynamic-section">
+        <label style="color:#0369a1; margin-bottom: 10px;">Plug-in Hybrid Detected (Split Trip)</label>
+        <div class="form-group">
+            <label for="distance-ev">Miles driven on Battery</label>
+            <input type="number" id="distance-ev" placeholder="e.g., 30" min="0">
+        </div>
+        <div class="form-group">
+            <label for="distance-gas">Miles driven on Gas</label>
+            <input type="number" id="distance-gas" placeholder="e.g., 120" min="0">
+        </div>
+    </div>
+
+    <div id="zip-input" class="dynamic-section">
+        <div class="form-group">
+            <label for="zip">Local ZIP Code <small>(For charging grid emissions)</small></label>
+            <input type="text" id="zip" placeholder="e.g., 15238" pattern="[0-9]{5}">
+        </div>
+    </div>
+
+    <button id="calculate" disabled>Awaiting Vehicle Selection...</button>
+
+    <div id="result">
+        <div>Total Estimated Emissions:</div>
+        <span class="co2-value" id="co2-total">0 kg CO₂</span>
+        <div id="co2-math-gas" class="co2-detail"></div>
+        <div id="co2-math-ev" class="co2-detail"></div>
+    </div>
+</div>
+
+<script>
+    // --- Configuration ---
+    const EPA_BASE_URL = '/api/epa/';
+    const CLIMATIQ_API_KEY = 'TMTR682YMS4ESAP5Q466NCZH5M'; // <-- INSERT YOUR KEY HERE
+
+    // --- Helpers ---
+    async function fetchEpaApi(endpoint) {
+        try {
+            const response = await fetch(`${EPA_BASE_URL}${endpoint}`, {
+	    	headers: { 
+        	    'Accept': 'application/json',
+        	    'User-Agent': 'XmasTree4U (acrossy2k@gmail.com)' // Identifies your app
+		}
+            });
+            if (!response.ok) throw new Error('EPA API Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error("EPA API Error:", error);
+            alert("Failed to connect to Fueleconomy.gov API.");
+            return null;
+        }
+    }
+
+    async function fetchClimatiqGridEmissions(zipCode, totalKwh) {
+        try {
+            const response = await fetch('https://api.climatiq.io/data/v1/estimate', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${CLIMATIQ_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "emission_factor": {
+                        "activity_id": "electricity-supply_grid-source_residual_mix",
+			"data_version": "33.33"
+                    },
+                    "parameters": {
+                        "energy": totalKwh,
+                        "energy_unit": "kWh"
+                    },
+		    "location": {
+                        "country": "US",
+                        "postal_code": zipCode
+                    }
+                })
+            });
+
+            // If the response is NOT okay (e.g., 400 Bad Request, 401 Unauthorized)
+            if (!response.ok) {
+                // 1. Get the HTTP Status Code
+                const httpStatusCode = response.status; 
+            
+                // 2. Parse the error body from Climatiq
+                const errorDetails = await response.json();
+            
+                // 3. Extract the specific error code and message
+                const apiErrorCode = errorDetails.error || "Unknown_Error";
+                const apiErrorMessage = errorDetails.message || "No detailed message provided.";
+
+                // 4. Log them cleanly to the console
+                console.error(`Climatiq Request Failed.`);
+                console.error(`HTTP Status: ${httpStatusCode}`);
+                console.error(`Error Code: ${apiErrorCode}`);
+                console.error(`Message: ${apiErrorMessage}`);
+
+                return null; // Exit gracefully
+            }
+
+            // If everything is fine, return the data
+            return await response.json();
+
+    	} catch (networkError) {
+      	    // This catch block now only triggers for critical network failures 
+            // (like losing your internet connection or a CORS block), not API data errors.
+            console.error("Critical Network Error:", networkError.message);
+            return null;
+    	}
+    }
+
+
+    function populateDropdown(selectId, dataList, defaultText) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+        if (!dataList) return;
+        const items = Array.isArray(dataList) ? dataList : [dataList];
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.value;
+            option.textContent = item.text;
+            select.appendChild(option);
+        });
+        select.disabled = false;
+    }
+
+    function resetDropdowns(ids) {
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = `<option value="">Waiting...</option>`;
+            el.disabled = true;
+        });
+    }
+
+    // --- UI Logic based on Vehicle Type ---
+    function updateUIForVehicleType(vehicle) {
+        const btn = document.getElementById('calculate');
+        const standardInputs = document.getElementById('standard-inputs');
+        const phevInputs = document.getElementById('phev-inputs');
+        const zipInput = document.getElementById('zip-input');
+
+        // Reset display
+        standardInputs.classList.remove('active');
+        phevInputs.classList.remove('active');
+        zipInput.classList.remove('active');
+
+        if (!vehicle) {
+            btn.disabled = true;
+            btn.textContent = "Awaiting Vehicle Selection...";
+            return;
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Calculate Footprint";
+
+        const isPureEV = vehicle.co2TailpipeGpm === "0.0" && vehicle.fuelType1.includes("Electricity");
+        const isPHEV = vehicle.atvType === "Plug-in Hybrid";
+
+        if (isPHEV) {
+            phevInputs.classList.add('active');
+            zipInput.classList.add('active');
+        } else if (isPureEV) {
+            standardInputs.classList.add('active');
+            zipInput.classList.add('active');
+        } else {
+            // Standard ICE or non-plug Hybrid
+            standardInputs.classList.add('active');
+        }
+    }
+
+    // --- Dropdown Event Listeners ---
+    window.addEventListener('DOMContentLoaded', async () => {
+        const data = await fetchEpaApi('/menu/year');
+        if (data && data.menuItem) populateDropdown('year', data.menuItem, 'Select Year');
+    });
+
+    document.getElementById('year').addEventListener('change', async (e) => {
+        const year = e.target.value;
+        resetDropdowns(['make', 'model', 'option']);
+        updateUIForVehicleType(null);
+        if (!year) return;
+        const data = await fetchEpaApi(`/menu/make?year=${year}`);
+        if (data && data.menuItem) populateDropdown('make', data.menuItem, 'Select Make');
+    });
+
+    document.getElementById('make').addEventListener('change', async (e) => {
+        const year = document.getElementById('year').value;
+        const make = e.target.value;
+        resetDropdowns(['model', 'option']);
+        updateUIForVehicleType(null);
+        if (!make) return;
+        const data = await fetchEpaApi(`/menu/model?year=${year}&make=${encodeURIComponent(make)}`);
+        if (data && data.menuItem) populateDropdown('model', data.menuItem, 'Select Model');
+    });
+
+    document.getElementById('model').addEventListener('change', async (e) => {
+        const year = document.getElementById('year').value;
+        const make = document.getElementById('make').value;
+        const model = e.target.value;
+        resetDropdowns(['option']);
+        updateUIForVehicleType(null);
+        if (!model) return;
+        const data = await fetchEpaApi(`/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+        if (data && data.menuItem) populateDropdown('option', data.menuItem, 'Select Specific Vehicle');
+    });
+
+    document.getElementById('option').addEventListener('change', async (e) => {
+        const vehicleId = e.target.value;
+        if (!vehicleId) return updateUIForVehicleType(null);
+        
+        document.getElementById('calculate').textContent = "Loading vehicle data...";
+        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        updateUIForVehicleType(currentVehicleData);
+    });
+
+    // --- Final Calculation Logic ---
+    document.getElementById('calculate').addEventListener('click', async () => {
+        if (!currentVehicleData) return;
+
+        const btn = document.getElementById('calculate');
+        const zipCode = document.getElementById('zip').value.trim();
+        
+        let totalKgCo2 = 0;
+        let gasText = "";
+        let evText = "";
+
+        const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
+        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+
+        btn.disabled = true;
+        btn.textContent = "Calculating...";
+
+        // 1. Handle Pure EV
+        if (isPureEV) {
+            const distance = parseFloat(document.getElementById('distance').value);
+            if (isNaN(distance) || distance <= 0) return alert("Enter valid distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
+            if (!zipCode || zipCode.length !== 5) return alert("Enter valid ZIP for EV."), btn.disabled=false, btn.textContent="Calculate Footprint";
+
+            const kwhPer100 = parseFloat(currentVehicleData.combE || 30);
+            const totalKwh = (kwhPer100 / 100) * distance;
+            const climatiqData = await fetchClimatiqGridEmissions(zipCode, totalKwh);
+
+            if (climatiqData && climatiqData.co2e) {
+                totalKgCo2 = climatiqData.co2e;
+                evText = `Grid: ${totalKwh.toFixed(1)} kWh charged in ${zipCode} (${totalKgCo2.toFixed(2)} kg)`;
+            } else {
+                return alert("API Error. Check console."), btn.disabled=false, btn.textContent="Calculate Footprint";
+            }
+        } 
+        // 2. Handle PHEV (Split Trip)
+        else if (isPHEV) {
+            const evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
+            const gasDist = parseFloat(document.getElementById('distance-gas').value) || 0;
+            
+            if (evDist + gasDist <= 0) return alert("Enter distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
+
+            // Gas Math (Using standard combined MPG to find fuel used, 8.887kg per gal)
+            if (gasDist > 0) {
+                const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
+                const gallonsUsed = gasDist / gasMpg;
+                const gasKgCo2 = gallonsUsed * 8.887;
+                totalKgCo2 += gasKgCo2;
+                gasText = `Gas: ${gasDist} miles at ${gasMpg} MPG (${gasKgCo2.toFixed(2)} kg)`;
+            }
+
+            // EV Math
+            if (evDist > 0) {
+                if (!zipCode || zipCode.length !== 5) return alert("Enter valid ZIP for battery portion."), btn.disabled=false, btn.textContent="Calculate Footprint";
+                
+                const kwhPer100 = parseFloat(currentVehicleData.phevCombE || currentVehicleData.combE || 30);
+                const totalKwh = (kwhPer100 / 100) * evDist;
+                const climatiqData = await fetchClimatiqGridEmissions(zipCode, totalKwh);
+
+                if (climatiqData && climatiqData.co2e) {
+                    totalKgCo2 += climatiqData.co2e;
+                    evText = `Grid: ${evDist} miles -> ${totalKwh.toFixed(1)} kWh (${climatiqData.co2e.toFixed(2)} kg)`;
+                } else {
+                    return alert("API Error. Check console."), btn.disabled=false, btn.textContent="Calculate Footprint";
+                }
+            }
+        } 
+        // 3. Handle Standard ICE / Non-plug Hybrid
+        else {
+            const distance = parseFloat(document.getElementById('distance').value);
+            if (isNaN(distance) || distance <= 0) return alert("Enter valid distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
+
+            const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
+            totalKgCo2 = (co2Gpm * distance) / 1000;
+            gasText = `Tailpipe: ${co2Gpm} g/mile × ${distance} miles`;
+        }
+
+        // Render Results
+        document.getElementById('co2-total').textContent = `${totalKgCo2.toFixed(2)} kg CO₂e`;
+        document.getElementById('co2-math-gas').textContent = gasText;
+        document.getElementById('co2-math-ev').textContent = evText;
+        document.getElementById('result').style.display = 'block';
+
+        btn.disabled = false;
+        btn.textContent = "Calculate Footprint";
+    });
+</script>
+
+</body>
+</html>
