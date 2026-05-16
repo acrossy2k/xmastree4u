@@ -8,7 +8,7 @@ app.use(express.static('public'));
 app.get('/api/epa/*', async (req, res) => {
     try {
         const endpoint = req.params[0];
-        const epaUrl = '/api/epa/menu/year';
+        const epaUrl = `https://www.fueleconomy.gov/ws/rest/vehicle/${endpoint}`;
         
         const response = await fetch(epaUrl, {
             headers: {
