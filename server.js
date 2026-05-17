@@ -23,7 +23,7 @@ app.get('/api/epa/*', async (req, res) => {
         const response = await fetch(epaUrl, {
             headers: {
                 'Accept': 'application/json',
-                'User-Agent': 'CarbonCalculatorApp/1.0 (your_email@example.com)'
+                'User-Agent': 'XmasTree4U/1.0 (acrossy2k@gmail.com)'
             }
         });
         
