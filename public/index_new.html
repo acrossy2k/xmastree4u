@@ -18,8 +18,8 @@
             min-height: 100vh;
             margin: 0;
             color: #333;
-	    overflow-x: hidden; 
-    	    overflow-y: auto;
+            overflow-x: hidden; 
+            overflow-y: auto;
         }
         #app-container {
             background: white;
@@ -50,12 +50,16 @@
         button:hover {
             background-color: #1d4ed8;
         }
+        button:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+        }
         #recommendation-text {
             font-size: 18px;
             margin-bottom: 20px;
         }
 
-	/* Progress Bar Styles */
+        /* Progress Bar Styles */
         #progress-container {
             display: none; /* Hidden on the intro screen */
             margin-bottom: 25px;
@@ -85,7 +89,7 @@
             transition: width 0.3s ease; /* Makes it slide smoothly */
         }
 
-	/* Styling for the Expandable "Why" Box */
+        /* Styling for the Expandable "Why" Box */
         .why-box {
             text-align: left;
             background-color: #f8fafc; /* Very light gray/blue */
@@ -95,19 +99,19 @@
             margin-bottom: 20px;
         }
         
-	.why-box summary {
-    	    cursor: pointer;
-    	    font-weight: 600;
-    	    color: #475569;
-    	    font-size: 15px;
-    	    outline: none;
-    	    list-style: none; /* Hides the default arrow */
-	}
+        .why-box summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            font-size: 15px;
+            outline: none;
+            list-style: none; /* Hides the default arrow */
+        }
 
-	/* Hides the default arrow specifically for Safari/Chrome */
-	.why-box summary::-webkit-details-marker {
-    	    display: none; 
-	}
+        /* Hides the default arrow specifically for Safari/Chrome */
+        .why-box summary::-webkit-details-marker {
+            display: none; 
+        }
         
         /* Adds a subtle hover effect */
         .why-box summary:hover {
@@ -122,12 +126,12 @@
             line-height: 1.5;
         }
 
-	/* Animates all the "Why this question?" boxes */
-	.why-box[open] p {
-    	    animation: slideDownFade 0.3s ease-out forwards;
-	}
+        /* Animates all the "Why this question?" boxes */
+        .why-box[open] p {
+            animation: slideDownFade 0.3s ease-out forwards;
+        }
 
-	.results-card {
+        .results-card {
             background-color: #f0fdf4;
             border: 2px solid #bbf7d0;
             border-radius: 12px;
@@ -137,44 +141,44 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-    	.results-subtitle {
+        .results-subtitle {
             color: #166534;
             font-size: 16px;
             margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 1px;
-    	}
+        }
 
-    	.results-winner {
+        .results-winner {
             color: #14532d;
             font-size: 28px;
             margin-top: 0;
             margin-bottom: 20px;
-    	}
+        }
 
-    	.results-divider {
+        .results-divider {
             border: 0;
             height: 1px;
             background-color: #bbf7d0;
             margin: 20px 0;
-    	}
+        }
 
-    	.timeline-title {
+        .timeline-title {
             color: #334155;
             font-size: 18px;
             text-align: left;
             margin-bottom: 15px;
-    	}
+        }
 
-    	/* Styling the Year-by-Year List */
-    	.timeline-list {
+        /* Styling the Year-by-Year List */
+        .timeline-list {
             list-style-type: none; /* Removes standard bullet points */
             padding: 0;
             text-align: left;
             margin: 0;
-    	}
+        }
 
-    	.timeline-list li {
+        .timeline-list li {
             background: white;
             border: 1px solid #e2e8f0;
             padding: 10px 15px;
@@ -185,37 +189,37 @@
             display: flex;
             justify-content: space-between; /* Puts year on left, tree on right */
             align-items: center;
-    	}
+        }
 
-      	.year-badge {
+        .year-badge {
             background-color: #e2e8f0;
             color: #334155;
             padding: 4px 10px;
             border-radius: 20px;
             font-weight: bold;
             font-size: 14px;
-    	}
+        }
 
-	.chart-container {
+        .chart-container {
             position: relative; /* CRITICAL for Chart.js responsiveness */
-    	    width: 100%;
-    	    height: 350px; /* Forces the graph to stay this tall on mobile */
-    	    flex-shrink: 0;
-	    margin-top: 25px;
-    	}
+            width: 100%;
+            height: 350px; /* Forces the graph to stay this tall on mobile */
+            flex-shrink: 0;
+            margin-top: 25px;
+        }
 
-	/* Assumptions Dropdown Styling */
-    	.assumptions-box {
+        /* Assumptions Dropdown Styling */
+        .assumptions-box {
             background-color: #f0fdf4; /* Matches the soft green of the Results Card */
             border: 2px solid #bbf7d0;
             border-radius: 12px;
             margin-top: 25px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
-    	}
+        }
 
-    	/* The clickable header */
-    	.assumptions-box summary {
+        /* The clickable header */
+        .assumptions-box summary {
             padding: 16px 20px;
             font-size: 16px;
             font-weight: bold;
@@ -223,30 +227,30 @@
             cursor: pointer;
             list-style: none; /* Hides the default browser arrow */
             position: relative;
-    	}
+        }
 
-    	/* Hides the default arrow in Safari/Chrome */
-    	.assumptions-box summary::-webkit-details-marker {
+        /* Hides the default arrow in Safari/Chrome */
+        .assumptions-box summary::-webkit-details-marker {
             display: none; 
-    	}
+        }
 
-    	/* Adds a custom, stylish arrow on the right side */
-    	.assumptions-box summary::after {
+        /* Adds a custom, stylish arrow on the right side */
+        .assumptions-box summary::after {
             content: "▼";
             position: absolute;
             right: 20px;
             color: #166534;
             font-size: 14px;
             transition: transform 0.3s ease; /* Makes the arrow spin smoothly */
-    	}
+        }
 
-    	/* Flips the arrow upside down when the box is clicked open */
-    	.assumptions-box[open] summary::after {
+        /* Flips the arrow upside down when the box is clicked open */
+        .assumptions-box[open] summary::after {
             transform: rotate(180deg);
-    	}
+        }
 
-    	/* The text inside the dropdown */
-    	.assumptions-content {
+        /* The text inside the dropdown */
+        .assumptions-content {
             padding: 0 20px 20px 20px;
             color: #475569;
             font-size: 15px;
@@ -255,37 +259,74 @@
             border-top: 1px solid #bbf7d0; /* Adds a faint line separating the title from the text */
             margin-top: 10px;
             padding-top: 15px;
-    	}
+        }
 
-    	.assumptions-content ul {
+        .assumptions-content ul {
             padding-left: 20px;
             margin-top: 12px;
-    	}
+        }
 
-    	.assumptions-content li {
+        .assumptions-content li {
             margin-bottom: 10px;
-    	}
+        }
 
-    	/* Makes the bold text pop with a darker green */
+        /* Makes the bold text pop with a darker green */
         .assumptions-content li strong {
             color: #14532d; 
-    	}
+        }
 
-	/* Animates the Behind the Math box */
-	.assumptions-box[open] .assumptions-content {
-    	    animation: slideDownFade 0.3s ease-out forwards;
-	}
+        /* Animates the Behind the Math box */
+        .assumptions-box[open] .assumptions-content {
+            animation: slideDownFade 0.3s ease-out forwards;
+        }
 
-	@keyframes slideDownFade {
-    	    from {
-        	opacity: 0;
-        	transform: translateY(-10px);
-    	    }
-    	    to {
-        	opacity: 1;
-        	transform: translateY(0);
-       	    }
-	}
+        /* Vehicle Dropdown Styles */
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+        }
+        select:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+        .dynamic-sub-section {
+            display: none;
+            padding: 15px;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .dynamic-sub-section.active {
+            display: block;
+        }
+
+        @keyframes slideDownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -294,7 +335,7 @@
 
     <!-- The Progress Bar (Hidden initially) -->
     <div id="progress-container">
-        <p id="progress-text">Question 1 of 7</p>
+        <p id="progress-text">Question 1 of 10</p>
         <div class="progress-bar-bg">
             <div id="progress-bar-fill"></div>
         </div>
@@ -311,12 +352,10 @@
         <button onclick="startQuiz()" style="background-color: #10b981; font-size: 18px; padding: 15px 30px; width: 100%;">Start</button>
     </div>
 
-    <!-- Question 1 (Make sure 'active' is removed from here!) -->
-
+    <!-- Question 1 -->
     <div class="step" id="step-1">
         <h2>Question 1: What height of Christmas tree are you planning to get (without roots)?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
             <p>Tree height is the foundation of our carbon math. For artificial trees, every extra foot means significantly more plastic and metal was manufactured and shipped, drastically increasing its carbon cost. For real trees, height tells us exactly how many years the tree spent actively absorbing carbon on the farm, as well as how much heavy wood you have to transport and dispose of.</p>
         </details>
@@ -333,9 +372,9 @@
         <button onclick="recordAnswer(10)">10 Feet</button>
     </div>
 
+    <!-- Question 2 -->
     <div class="step" id="step-2">
         <h2>Question 2: How many miles away are these locations?</h2>
-
         <details class="why-box">
             <summary>Why this question?</summary>
             <p>Transportation is the hidden carbon cost of a tree. Driving a gas-powered vehicle long distances can actually produce more emissions than the tree itself absorbed while growing!</p>
@@ -357,121 +396,158 @@
         <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
-    <div class="step" id="step-5">
-        <h2>Question 5: If you get a real tree, how will you dispose of it after use?</h2>
-
-	<details class="why-box">
+    <!-- Question 3: NEW CAR SELECTION STEP -->
+    <div class="step" id="step-3">
+        <h2>Question 3: Select the vehicle you will use to transport your tree</h2>
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>How you dispose of a cut tree is an important factor in its total carbon footprint. If a tree ends up buried in a landfill, it decomposes without oxygen and releases methane as well as carbon dioxide. On the other hand, having the tree chipped into mulch or composted allows it to break down naturally and safely, keeping its carbon footprint incredibly low. Your disposal method can literally make the difference between a tree being eco-friendly or harmful to the environment.</p>
+            <p>Different cars generate different emissions per mile. Connecting directly to the official EPA database allows us to use your precise vehicle profile to replace generic driving averages with accurate math.</p>
         </details>
 
+        <div style="text-align: left; padding: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label for="year">1. Vehicle Year</label>
+                <select id="year"><option value="">Loading years...</option></select>
+            </div>
+            <div class="form-group">
+                <label for="make">2. Make</label>
+                <select id="make" disabled><option value="">Select a Year first</option></select>
+            </div>
+            <div class="form-group">
+                <label for="model">3. Model</label>
+                <select id="model" disabled><option value="">Select a Make first</option></select>
+            </div>
+            <div class="form-group" id="option-group" style="display: none;">
+                <label for="option">4. Specific Trim/Engine</label>
+                <select id="option" disabled><option value="">Select a Model first</option></select>
+            </div>
+        </div>
+
+        <button id="btn-step-3" onclick="processVehicleSelection()" disabled>Awaiting Vehicle Selection...</button>
+        <br><br>
+        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+    </div>
+
+    <!-- Question 4: NEW ADDITIONAL VEHICLE DETAILS (Skipped for Gas Cars) -->
+    <div class="step" id="step-4">
+        <h2>Question 4: Additional Vehicle Details</h2>
+        <div id="phev-inputs" class="dynamic-sub-section">
+            <p style="color:#0369a1; font-weight:600; margin-top:0;">Plug-in Hybrid Detected (Split Driving Math)</p>
+            <div class="form-group">
+                <label for="distance-ev">Out of your total one-way trip, how many miles will be driven on pure battery power?</label>
+                <input type="number" id="distance-ev" placeholder="e.g., 5" min="0">
+            </div>
+        </div>
+
+        <div id="zip-input" class="dynamic-sub-section">
+            <div class="form-group">
+                <label for="zip">Local ZIP Code <small>(To assess your local charging grid profile)</small></label>
+                <input type="text" id="zip" placeholder="e.g., 15238" pattern="[0-9]{5}">
+            </div>
+        </div>
+
+        <button id="btn-step-4" onclick="processElectricVehicleDetails()">Next Step</button>
+        <br><br>
+        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+    </div>
+
+    <!-- Question 5 -->
+    <div class="step" id="step-5">
+        <h2>Question 5: If you get a real tree, how will you dispose of it after use?</h2>
+        <details class="why-box">
+            <summary>Why this question?</summary>
+            <p>How you dispose of a cut tree is an important factor in its total carbon footprint. If a tree ends up buried in a landfill, it decomposes without oxygen and releases methane as well as carbon dioxide. On the other hand, having the tree chipped into mulch or composted allows it to break down naturally and safely, keeping its carbon footprint incredibly low.</p>
+        </details>
         <button onclick="recordAnswer(1)">Landfill</button>
         <button onclick="recordAnswer(2)">Chipped</button>
         <button onclick="recordAnswer(3)">Burned</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
+    <!-- Question 6 -->
     <div class="step" id="step-6">
         <h2>Question 6: Do you have any allergies to real trees or tree pollen?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>"Christmas Tree Syndrome" is a very real thing! While actual tree pollen is rare in the winter, real trees carry dust, strong pine sap, and naturally occurring mold spores on their branches. When you bring a living or cut tree into a warm, cozy house, those mold spores can multiply rapidly and trigger severe indoor allergies or asthma. If you are highly sensitive to these, an artificial tree is going to be the absolute best route for your health, regardless of the carbon math.</p>
+            <p>"Christmas Tree Syndrome" is a very real thing! While actual tree pollen is rare in the winter, real trees carry dust, strong pine sap, and naturally occurring mold spores on their branches.</p>
         </details>
-
         <button onclick="recordAnswer(1)">Yes</button>
         <button onclick="recordAnswer(2)">No</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
+    <!-- Question 7 -->
     <div class="step" id="step-7">
         <h2>Question 7: Is your ceiling higher than or equal to <span id="tree-height-plus-two-placeholder"></span> feet?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>Unlike cut real trees or artificial trees that sit in low-profile stands, living trees (like rented or replantable ones) must stay in massive pots to protect their root systems. This pot adds about 2 feet of extra height to the plant. If you want a 7-foot tree, it will actually stand 9 feet tall in your living room. We need to make sure the eco-friendly option will actually fit inside your house!</p>
+            <p>Living trees must stay in massive pots to protect their root systems. This pot adds about 2 feet of extra height to the plant.</p>
         </details>
-
         <button onclick="recordAnswer(1)">Yes</button>
         <button onclick="recordAnswer(2)">No</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
+    <!-- Question 8 -->
     <div class="step" id="step-8">
         <h2>Question 8: How many days will you keep your Christmas tree up this year?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>The amount of time you keep your tree indoors is the ultimate deciding factor for living trees. Potted, replantable trees can only survive in a warm house for about 7 to 10 days, while professional rental trees max out at 3 to 4 weeks. If they stay inside longer, the heat tricks them into thinking it’s spring. When they are moved back outside, the winter shock kills them—completely erasing their eco-friendly benefits!</p>
+            <p>Potted, replantable trees can only survive in a warm house for about 7 to 10 days, while professional rental trees max out at 3 to 4 weeks. If they stay inside longer, the heat tricks them into thinking it’s spring.</p>
         </details>
-
         <button onclick="recordAnswer(1)">Within 10 days</button>
         <button onclick="recordAnswer(2)">More than 10 days but no more than 4 weeks</button>
         <button onclick="recordAnswer(3)">More than 4 weeks</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
+    <!-- Question 9 -->
     <div class="step" id="step-9">
         <h2>Question 9: Do you have a suitable place to plant a replantable tree after the holidays?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>Replantable trees need a permanent home to survive and continue pulling carbon out of the air. They require proper spacing away from your home's foundation, decent soil, and most importantly, a pre-dug hole—because by January, the ground in many areas is frozen solid! If you don't have a dedicated spot prepared, the tree won't survive the winter, which unfortunately erases its eco-friendly benefits.</p>
+            <p>Replantable trees need a permanent home to survive and continue pulling carbon out of the air.</p>
         </details>
-
         <button onclick="recordAnswer(1)">Yes</button>
         <button onclick="recordAnswer(2)">No</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
+    <!-- Question 10 -->
     <div class="step" id="step-10">
         <h2>Question 10: Are you willing to replant a tree?</h2>
-
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>Replanting a living Christmas tree is a serious physical commitment. The root ball of a standard tree can easily weigh over 100 pounds! It also requires a lot of manual labor and pre-planning—like digging the hole in the fall before the ground freezes, hauling the heavy tree out into the winter weather immediately after the holidays, and mulching it properly. If you aren't up for the heavy lifting, it's much better to know that now so we can recommend a more convenient eco-friendly option!</p>
+            <p>The root ball of a standard tree can easily weigh over 100 pounds! It also requires a lot of manual labor and pre-planning.</p>
         </details>
-
         <button onclick="recordAnswer(1)">Yes</button>
         <button onclick="recordAnswer(2)">No</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
+        <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
     <div class="step" id="results">
         <h2>Carbon Footprint (kg CO<sub>2</sub>e)</h2>
         
-	<div class="chart-container">
+        <div class="chart-container">
             <canvas id="myChart"></canvas>
-	</div>
+        </div>
         <br>
 
         <div id="recommendation-text"></div>        
-	<details class="assumptions-box">
-    	    <summary>Behind the Math: Assumptions</summary>
-    		<div class="assumptions-content">
-        	    <p>To calculate these accurate Cradle-to-Grave footprints, our model relies on a few standardized environmental assumptions:</p>
-        	    <ul>
-            		<li><strong>Disposal Cost:</strong> We assume Replantable and Rented do not die and there is no disposal cost.</li>
-            		<li><strong>Post-Holiday Carbon Savings:</strong> We do not count the continued CO<sub>2</sub>e savings after a living tree is permanently replanted or returned to the farm.</li>
-			<li><strong>No Replanting Reuse:</strong> We assume that once a replantable tree is permanently planted in the ground, it is not dug up and reused as an indoor Christmas tree in subsequent years.</li>
-            		<li><strong>Vehicles & Transport:</strong> Personal driving emissions are calculated based on a large gasoline vehicle (like an SUV). Shipped or professionally delivered trees assume route-optimized trucks, dropping the cost to half.</li>
-			<li><strong>Root Ball Height:</strong> We assume the root ball or massive pot required for living (replantable or rented) trees adds approximately 2 feet to the total standing height of the tree indoors.</li>
-            		<li><strong>The Power of Scale:</strong> Trees scale non-linearly. Living trees (Fraser fir) scale their biomass by a power of 2.638, meaning taller trees carry exponentially heavier carbon weights. We used the scale factor 2.7 for artificial trees.</li>
-        	    </ul>
-    		</div>
-	</details>
+        <details class="assumptions-box">
+            <summary>Behind the Math: Assumptions</summary>
+            <div class="assumptions-content">
+                <p>To calculate these accurate Cradle-to-Grave footprints, our model relies on a few standardized environmental assumptions:</p>
+                <ul>
+                    <li><strong>Disposal Cost:</strong> We assume Replantable and Rented do not die and there is no disposal cost.</li>
+                    <li><strong>Post-Holiday Carbon Savings:</strong> We do not count the continued CO<sub>2</sub>e savings after a living tree is permanently replanted or returned to the farm.</li>
+                    <li><strong>No Replanting Reuse:</strong> We assume that once a replantable tree is permanently planted in the ground, it is not dug up and reused as an indoor Christmas tree in subsequent years.</li>
+                    <li><strong>Vehicles & Transport:</strong> Personal driving emissions are calculated dynamically based on your chosen EPA vehicle model profile. Shipped or professionally delivered trees assume route-optimized trucks, dropping the cost to half.</li>
+                    <li><strong>Root Ball Height:</strong> We assume the root ball or massive pot required for living (replantable or rented) trees adds approximately 2 feet to the total standing height of the tree indoors.</li>
+                    <li><strong>The Power of Scale:</strong> Trees scale non-linearly. Living trees (Fraser fir) scale their biomass by a power of 2.638, meaning taller trees carry exponentially heavier carbon weights. We used the scale factor 2.7 for artificial trees.</li>
+                </ul>
+            </div>
+        </details>
         <br>
 
         <button onclick="location.reload()" style="background-color: #64748b;">Retake Quiz</button>
@@ -480,358 +556,524 @@
 </div>
 
 <script>
-    // --- JavaScript: The Logic Engine ---
-    
+    // --- Configuration ---
+    const EPA_BASE_URL = 'https://www.fueleconomy.gov/ws/rest/vehicle';
+
+    // --- Global State Engine ---
     let currentStep = 1;
-    const totalSteps = 10;
-    let userAnswers = []; // This array will store the points for each question
+    const totalSteps = 10; 
+    let userAnswers = []; 
+    let currentVehicleData = null;
+    
+    // Dynamic Calculated Driving Rates (kg CO2e per single mile)
+    let dynamicRealMileRate = 1.08; 
+    let dynamicRentedMileRate = 2.16;
+    let dynamicReplantableMileRate = 1.08;
 
     function startQuiz() {
         document.getElementById('intro-step').classList.remove('active');
         document.getElementById('step-1').classList.add('active');
-        
-        // --- PROGRESS BAR: Show the bar and set to Q1 ---
         document.getElementById('progress-container').style.display = 'block';
         updateProgress();
     }
 
-    function recordAnswer(points) {
-        // 1. Save the score from the button clicked into our array
-        userAnswers.push(points);
+    // --- Distance Recording (Step 2) ---
+    function recordDistances() {
+        const dReal = parseInt(document.getElementById('dist-real').value);
+        const dRented = parseInt(document.getElementById('dist-rented').value);
+        const dArt = parseInt(document.getElementById('dist-artificial').value);
         
-        // 2. Hide the current question by removing the 'active' class
+        if (isNaN(dReal) || dReal < 1 || dReal > 100 ||
+            isNaN(dRented) || dRented < 1 || dRented > 100 ||
+            isNaN(dArt) || dArt < 1 || dArt > 100) {
+            alert("Please enter a valid number between 1 and 100 for all three distances.");
+            return;
+        }
+        
+        userAnswers.push(dReal, dRented, dArt);
+        
         document.getElementById(`step-${currentStep}`).classList.remove('active');
+        currentStep++;
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        updateProgress();
+    }
+
+    // --- Vehicle Handling Helpers ---
+    async function fetchEpaApi(endpoint) {
+        try {
+            const response = await fetch(`${EPA_BASE_URL}${endpoint}`, {
+                headers: { 
+                    'Accept': 'application/json',
+                    'User-Agent': 'XmasTree4U (acrossy2k@gmail.com)'
+                }
+            });
+            if (!response.ok) throw new Error('EPA API response fail');
+            return await response.json();
+        } catch (error) {
+            console.error("EPA API Error:", error);
+            alert("Failed to connect to Fueleconomy.gov API.");
+            return null;
+        }
+    }
+
+    async function fetchClimatiqGridEmissions(zipCode, totalKwh) {
+        try {
+            const response = await fetch('/api/climatiq', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ zipCode: zipCode, totalKwh: totalKwh })
+            });
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function populateDropdown(selectId, dataList, defaultText) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+        if (!dataList) return;
+        const items = Array.isArray(dataList) ? dataList : [dataList];
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.value;
+            option.textContent = item.text;
+            select.appendChild(option);
+        });
+        select.disabled = false;
+    }
+
+    function resetDropdowns(ids) {
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = `<option value="">Waiting...</option>`;
+            el.disabled = true;
+        });
+    }
+
+    // --- Process Step 3 (EPA Car Selection) ---
+    async function processVehicleSelection() {
+        if (!currentVehicleData) return;
+
+        const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
+        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+
+        userAnswers.push(currentVehicleData.id); // Save vehicle ID tracking index 4
+
+        document.getElementById(`step-3`).classList.remove('active');
+
+        if (!isPureEV && !isPHEV) {
+            // Standard Gasoline/Diesel Car Math
+            const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
+            const kgPerMile = co2Gpm / 1000;
+
+            // Tailpipe is fixed round-trip factor
+            dynamicRealMileRate = kgPerMile;
+            dynamicReplantableMileRate = kgPerMile;
+            dynamicRentedMileRate = kgPerMile * 2; // Rented gets double trips
+
+            userAnswers.push(0, ""); // Dummy filler elements for Step 4 indices
+            currentStep = 5; // Jump straight past Question 4
+            document.getElementById(`step-5`).classList.add('active');
+            updateProgress();
+        } else {
+            // EV or PHEV detected -> Go to Question 4 panel setup
+            currentStep = 4;
+            document.getElementById('phev-inputs').classList.remove('active');
+            document.getElementById('zip-input').classList.remove('active');
+
+            if (isPHEV) document.getElementById('phev-inputs').classList.add('active');
+            document.getElementById('zip-input').classList.add('active');
+
+            document.getElementById(`step-4`).classList.add('active');
+            updateProgress();
+        }
+    }
+
+    // --- Process Step 4 (EV/PHEV Grid Mechanics) ---
+    async function processElectricVehicleDetails() {
+        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+        const zip = document.getElementById('zip').value.trim();
+        const btn = document.getElementById('btn-step-4');
+
+        let evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
         
-        // 3. Advance the step counter
+        if (!zip || zip.length !== 5) {
+            alert("Please enter a valid 5-digit ZIP code.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Analyzing local grid data...";
+
+        // Baseline rate parameters
+        let gasKgPerMile = 0;
+        let evKgPerMile = 0;
+
+        // 1. Calculate Electric emission rate via Climatiq
+        const kwhPer100 = parseFloat(isPHEV ? (currentVehicleData.phevCombE || currentVehicleData.combE || 30) : (currentVehicleData.combE || 30));
+        const kwhPerSingleMile = kwhPer100 / 100;
+
+        // Fetch a benchmark assessment for 10 kWh to isolate local grid scale factor
+        const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
+        if (gridAssessment && gridAssessment.co2e) {
+            const kgPerKwh = gridAssessment.co2e / 10;
+            evKgPerMile = kwhPerSingleMile * kgPerKwh;
+        } else {
+            // Reliable fallback fallback mapping national mixed averages
+            evKgPerMile = kwhPerSingleMile * 0.39; 
+        }
+
+        // 2. Calculate Gas components for Hybrid profiles
+        if (isPHEV) {
+            const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
+            gasKgPerMile = 8.887 / gasMpg;
+        }
+
+        // 3. Map dynamic parameters over real trips
+        const totalDistanceQuery = userAnswers[1]; // Real distance chosen
+
+        if (isPHEV) {
+            if (evDist > totalDistanceQuery) evDist = totalDistanceQuery;
+            const gasDist = totalDistanceQuery - evDist;
+
+            // Blended composite scaling per mile
+            const totalTripKg = (evDist * evKgPerMile) + (gasDist * gasKgPerMile);
+            dynamicRealMileRate = totalTripKg / totalDistanceQuery;
+            dynamicReplantableMileRate = dynamicRealMileRate;
+            dynamicRentedMileRate = dynamicRealMileRate * 2; // Double tracking trips
+        } else {
+            // Pure EV logic profiles
+            dynamicRealMileRate = evKgPerMile;
+            dynamicReplantableMileRate = evKgPerMile;
+            dynamicRentedMileRate = evKgPerMile * 2;
+        }
+
+        userAnswers.push(evDist, zip); // Store answers
+
+        btn.disabled = false;
+        btn.textContent = "Next Step";
+
+        document.getElementById(`step-4`).classList.remove('active');
+        currentStep = 5;
+        document.getElementById(`step-5`).classList.add('active');
+        updateProgress();
+    }
+
+    // --- Standard Quiz Record Operations ---
+    function recordAnswer(points) {
+        userAnswers.push(points);
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
         currentStep++;
         
-        // 4. Check if we have more questions, or if we should show results
-	if (currentStep > totalSteps ||
-	    currentStep == 7 && userAnswers[5] == 1 ||  // if any allergies, no more living tree related questions.
-	    currentStep == 8 && userAnswers[6] == 2 ||  // if ceiling is not high enough, no more replantable/rented related questions.
-	    currentStep == 9 && (userAnswers[7] == 2 || userAnswers[7] == 3) ||  // if more than 10 days to keep, no more replantable related questions.
-	    currentStep == 10 && userAnswers[8] == 2) {  // if no space, no more replantable related questions.
-            // Show the results screen
+        // Logical flow safety bypass rules map
+        if (currentStep > totalSteps ||
+            currentStep == 7 && userAnswers[7] == 1 ||  // Allergies
+            currentStep == 8 && userAnswers[8] == 2 ||  // Ceiling height 
+            currentStep == 9 && (userAnswers[9] == 2 || userAnswers[9] == 3) ||  // Days limits
+            currentStep == 10 && userAnswers[10] == 2) { // Planting limits
+            
             document.getElementById('results').classList.add('active');
-
-	    // --- PROGRESS BAR: Hide it on the final results screen ---
             document.getElementById('progress-container').style.display = 'none';
             calculateAndShowResults();
         } else {
-	    // Inject Q1's answer into Q7
-	    if (currentStep === 2) {
-                // userAnswers[0] grabs the Christmas tree height
-		let treeHeightPlusTwo = userAnswers[0] + 2;
-                document.getElementById('tree-height-plus-two-placeholder').innerText = treeHeightPlusTwo.toString();
-            }
-            // Show the next question
             document.getElementById(`step-${currentStep}`).classList.add('active');
-
-	    // --- PROGRESS BAR: Update the bar as they move forward ---
             updateProgress();
         }
     }
 
     function goBack() {
-        // 1. Prevent going back if they are already on the very first question
         if (currentStep === 1) return;
 
-        // 2. Hide the current question
         document.getElementById(`step-${currentStep}`).classList.remove('active');
+        
+        // Check structural jumps
+        if (currentStep === 5) {
+            const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
+            const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+            
+            userAnswers.pop(); // Remove disposal
+            userAnswers.pop(); // Remove zip mapping or dummy entries
+            userAnswers.pop(); // Remove battery details or dummy entries
+            userAnswers.pop(); // Remove vehicle id mapping
 
-        // 3. Move the step counter back by one
-        currentStep--;
+            currentStep = 3; 
+        } else if (currentStep === 4) {
+            userAnswers.pop(); // Remove vehicle identifier tracking
+            currentStep = 3;
+        } else if (currentStep === 3) {
+            userAnswers.pop(); // Remove Art dist
+            userAnswers.pop(); // Remove Rent dist
+            userAnswers.pop(); // Remove Real dist
+            currentStep = 2;
+        } else {
+            userAnswers.pop();
+            currentStep--;
+        }
 
-        // 4. Remove the last saved answer from our array (the "undo" action)
-        userAnswers.pop(); 
-
-        // 5. Reveal the previous question
         document.getElementById(`step-${currentStep}`).classList.add('active');
-
-	// --- PROGRESS BAR: Update the bar as they move backward ---
         updateProgress();
     }
 
     function updateProgress() {
-        // Update the text (e.g., "Question 2 of 7")
         document.getElementById('progress-text').innerText = `Question ${currentStep} of ${totalSteps}`;
-        
-        // Calculate the percentage filled
-        // We subtract 1 from currentStep so Question 1 starts at 0% filled
         const percentage = ((currentStep - 1) / totalSteps) * 100;
-        
-        // Update the visual width of the blue bar
         document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
     }
 
-    function calculateAndShowResults() {
-        // Calculate carbon footprint for each tree
+    // --- Dropdown Cascade Bindings ---
+    window.addEventListener('DOMContentLoaded', async () => {
+        const data = await fetchEpaApi('/menu/year');
+        if (data && data.menuItem) populateDropdown('year', data.menuItem, 'Select Year');
+    });
 
-	// kg CO2e from Production
-	const CO2ProductionLivingPerHeight = [0, -0.1, -0.6, -1.9, -4.1, -7.4, -12.0, -18.0, -25.6, -34.9, -46.1];
-	const CO2ProductionArtificialPerHeight = [0, 0.2, 1.3, 3.9, 8.4, 15.3, 25.1, 38.0, 54.5, 74.9, 99.6];
+    document.getElementById('year').addEventListener('change', async (e) => {
+        const year = e.target.value;
+        document.getElementById('option-group').style.display = 'none';
+        document.getElementById('btn-step-3').disabled = true;
+        document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+        resetDropdowns(['make', 'model', 'option']);
+        currentVehicleData = null;
+        if (!year) return;
+        const data = await fetchEpaApi(`/menu/make?year=${year}`);
+        if (data && data.menuItem) populateDropdown('make', data.menuItem, 'Select Make');
+    });
 
-	// kg CO2e from Transportation
-	const CO2TransporationRealPerMile = 1.08;
-	const CO2TransporationReplantablePerMile = 1.08;
-	const CO2TransporationRentedPerMile = 2.16;
-	const CO2TransporationArtificialPerMile = 0.54;
+    document.getElementById('make').addEventListener('change', async (e) => {
+        const year = document.getElementById('year').value;
+        const make = e.target.value;
+        document.getElementById('option-group').style.display = 'none';
+        document.getElementById('btn-step-3').disabled = true;
+        document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+        resetDropdowns(['model', 'option']);
+        currentVehicleData = null;
+        if (!make) return;
+        const data = await fetchEpaApi(`/menu/model?year=${year}&make=${encodeURIComponent(make)}`);
+        if (data && data.menuItem) populateDropdown('model', data.menuItem, 'Select Model');
+    });
 
-	// kg CO2e from Disposal
-	const CO2DisposalRealLandfillPerHeight = [0, 0.1, 0.6, 1.7, 3.7, 6.6, 10.7, 16.0, 22.8, 31.0, 41.0]
-	const CO2DisposalRealChippedPerHeight = [0, 0.0, 0.1, 0.4, 0.8, 1.4, 2.3, 3.5, 5.0, 6.8, 9.0]
-	const CO2DisposalRealBurnedPerHeight = [0, 0.0, 0.1, 0.4, 0.8, 1.4, 2.3, 3.5, 5.0, 6.8, 9.0]
-	const CO2DisposalArtificialLandfillPerHeight = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-	// User inputs
-	const height = userAnswers[0];
-	const distanceReal = userAnswers[1];
-	const distanceReplantable = userAnswers[1];
-	const distanceRented = userAnswers[2];
-	const distanceArtificial = userAnswers[3];
-	const disposalMethod = userAnswers[4];
-
-	// Fixed kg CO2e
-	const realCarbonFootprintFixed = 0;
-	const replantableCarbonFootprintFixed = 0;
-	const rentedCarbonFootprintFixed = CO2ProductionLivingPerHeight[height];
-	const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + CO2TransporationArtificialPerMile * distanceArtificial + CO2DisposalArtificialLandfillPerHeight[height];
-
-	// Per-year kg CO2e
-	let realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + CO2TransporationRealPerMile * distanceReal;
-	if (disposalMethod == 1) {  // Landfill
-	    realCarbonFootprintPerYear += CO2DisposalRealLandfillPerHeight[height];
-	} else if (disposalMethod == 2) {  // Chipped
-	    realCarbonFootprintPerYear += CO2DisposalRealChippedPerHeight[height];
-	} else { // Burned
-	    realCarbonFootprintPerYear += CO2DisposalRealBurnedPerHeight[height];
-	}
-	const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + CO2TransporationReplantablePerMile * distanceReplantable;
-	const rentedCarbonFootprintPerYear = CO2TransporationRentedPerMile * distanceRented;
-	const artificialCarbonFootprintPerYear = 0;
-
-	// Calculate total kg CO2e for predefined years
-	const num_years = 8;
-	const years = [1, 3, 5, 7, 9, 11, 13, 15];
-	let realCarbonFootprint = [];
-	let replantableCarbonFootprint = [];
-	let rentedCarbonFootprint = [];
-	let artificialCarbonFootprint = [];
-
-	for (let i = 0; i < num_years; i++) {
-  	    realCarbonFootprint[i] = realCarbonFootprintFixed + realCarbonFootprintPerYear * years[i];
-  	    replantableCarbonFootprint[i] = replantableCarbonFootprintFixed + replantableCarbonFootprintPerYear * years[i];
-  	    rentedCarbonFootprint[i] = rentedCarbonFootprintFixed + rentedCarbonFootprintPerYear * years[i];
-  	    artificialCarbonFootprint[i] = artificialCarbonFootprintFixed + artificialCarbonFootprintPerYear * years[i];
-	}
+    document.getElementById('model').addEventListener('change', async (e) => {
+        const year = document.getElementById('year').value;
+        const make = document.getElementById('make').value;
+        const model = e.target.value;
+        const optionGroup = document.getElementById('option-group');
         
-        // Grab the HTML element where we want to put the text
-        const recText = document.getElementById('recommendation-text');
+        document.getElementById('btn-step-3').disabled = true;
+        document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+        resetDropdowns(['option']);
+        currentVehicleData = null;
+        optionGroup.style.display = 'none';
+        
+        if (!model) return;
+        
+        const data = await fetchEpaApi(`/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+        
+        if (data && data.menuItem) {
+            const items = Array.isArray(data.menuItem) ? data.menuItem : [data.menuItem];
+            
+            if (items.length === 1) {
+                populateDropdown('option', items, 'Select Specific Vehicle');
+                const vehicleId = items[0].value;
+                document.getElementById('option').value = vehicleId;
+                document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
                 
-        // Render the Graph using Chart.js
+                currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+                document.getElementById('btn-step-3').disabled = false;
+                document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+            } else {
+                optionGroup.style.display = 'block';
+                populateDropdown('option', items, 'Select Specific Vehicle');
+            }
+        }
+    });
+
+    document.getElementById('option').addEventListener('change', async (e) => {
+        const vehicleId = e.target.value;
+        document.getElementById('btn-step-3').disabled = true;
+        currentVehicleData = null;
+        if (!vehicleId) {
+            document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+            return;
+        }
+        document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
+        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        document.getElementById('btn-step-3').disabled = false;
+        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+    });
+
+    // --- Final Carbon Calculus Processing ---
+    function calculateAndShowResults() {
+        const CO2ProductionLivingPerHeight = [0, -0.1, -0.6, -1.9, -4.1, -7.4, -12.0, -18.0, -25.6, -34.9, -46.1];
+        const CO2ProductionArtificialPerHeight = [0, 0.2, 1.3, 3.9, 8.4, 15.3, 25.1, 38.0, 54.5, 74.9, 99.6];
+
+        const CO2TransporationArtificialPerMile = 0.54;
+
+        const CO2DisposalRealLandfillPerHeight = [0, 0.1, 0.6, 1.7, 3.7, 6.6, 10.7, 16.0, 22.8, 31.0, 41.0];
+        const CO2DisposalRealChippedPerHeight = [0, 0.0, 0.1, 0.4, 0.8, 1.4, 2.3, 3.5, 5.0, 6.8, 9.0];
+        const CO2DisposalRealBurnedPerHeight = [0, 0.0, 0.1, 0.4, 0.8, 1.4, 2.3, 3.5, 5.0, 6.8, 9.0];
+
+        // Capture parsed operational array entries safely
+        const height = userAnswers[0];
+        const distanceReal = userAnswers[1];
+        const distanceReplantable = userAnswers[1];
+        const distanceRented = userAnswers[2];
+        const distanceArtificial = userAnswers[3];
+        
+        // Note: Vehicle tracking data entries occupy userAnswers[4, 5, 6]
+        const disposalMethod = userAnswers[7];
+
+        // Fixed baseline constants setup
+        const realCarbonFootprintFixed = 0;
+        const replantableCarbonFootprintFixed = 0;
+        const rentedCarbonFootprintFixed = CO2ProductionLivingPerHeight[height];
+        const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + CO2TransporationArtificialPerMile * distanceArtificial;
+
+        // Apply dynamically isolated custom fuel rates calculated inside Steps 3 & 4
+        let realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + dynamicRealMileRate * distanceReal;
+        
+        if (disposalMethod == 1) {  
+            realCarbonFootprintPerYear += CO2DisposalRealLandfillPerHeight[height];
+        } else if (disposalMethod == 2) {  
+            realCarbonFootprintPerYear += CO2DisposalRealChippedPerHeight[height];
+        } else { 
+            realCarbonFootprintPerYear += CO2DisposalRealBurnedPerHeight[height];
+        }
+        
+        const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + dynamicReplantableMileRate * distanceReplantable;
+        const rentedCarbonFootprintPerYear = dynamicRentedMileRate * distanceRented;
+        const artificialCarbonFootprintPerYear = 0;
+
+        const num_years = 8;
+        const years = [1, 3, 5, 7, 9, 11, 13, 15];
+        let realCarbonFootprint = [];
+        let replantableCarbonFootprint = [];
+        let rentedCarbonFootprint = [];
+        let artificialCarbonFootprint = [];
+
+        for (let i = 0; i < num_years; i++) {
+            realCarbonFootprint[i] = realCarbonFootprintFixed + realCarbonFootprintPerYear * years[i];
+            replantableCarbonFootprint[i] = replantableCarbonFootprintFixed + replantableCarbonFootprintPerYear * years[i];
+            rentedCarbonFootprint[i] = rentedCarbonFootprintFixed + rentedCarbonFootprintPerYear * years[i];
+            artificialCarbonFootprint[i] = artificialCarbonFootprintFixed + artificialCarbonFootprintPerYear * years[i];
+        }
+        
+        const recText = document.getElementById('recommendation-text');
         const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Chart Initialization
         new Chart(ctx, {
-            type: 'line', // Change to 'line' or 'pie' if you want a different graph
+            type: 'line',
             data: {
-                labels: ['Year ' + years[0].toString(), 'Year ' + years[1].toString(), 'Year ' + years[2].toString(), 'Year ' + years[3].toString(), 'Year ' + years[4].toString(), 'Year ' + years[5].toString(), 'Year ' + years[6].toString(), 'Year ' + years[7].toString()], // X-axis labels
+                labels: ['Year 1', 'Year 3', 'Year 5', 'Year 7', 'Year 9', 'Year 11', 'Year 13', 'Year 15'],
                 datasets: [{
                     label: 'Real',
                     data: realCarbonFootprint,
                     borderColor: 'rgb(37, 99, 235)',
-		    backgroundColor: 'rgba(37, 99, 235, 0.2)', // Same color, but 20% visible
-                    borderRadius: 4
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)'
                 }, {
                     label: 'Replanted',
                     data: replantableCarbonFootprint,
                     borderColor: 'rgb(249, 115, 22)',
-		    backgroundColor: 'rgba(249, 115, 22, 0.2)', // Same color, but 20% visible
-                    borderRadius: 4
+                    backgroundColor: 'rgba(249, 115, 22, 0.2)'
                 }, {
                     label: 'Rented',
                     data: rentedCarbonFootprint,
                     borderColor: 'rgb(16, 185, 129)',
-		    backgroundColor: 'rgba(16, 185, 129, 0.2)', // Same color, but 20% visible
-                    borderRadius: 4
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)'
                 }, {
                     label: 'Artificial',
                     data: artificialCarbonFootprint,
                     borderColor: 'rgb(139, 92, 246)',
-		    backgroundColor: 'rgba(139, 92, 246, 0.2)', // Same color, but 20% visible
-                    borderRadius: 4
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)'
                 }]
             },
             options: {
-		responsive: true,
-    		maintainAspectRatio: false, /* This is the magic line */
-    		scales: {
-        	    y: { 
-            		beginAtZero: true, 
-        	    }
-    		}
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } }
             }
         });
 
-	let recommended = [];
-	let numRecommended = 0;
-	let maxCO2e = 999999; // Impossibly high number to disqualify options
+        let recommended = [];
+        let numRecommended = 0;
+        const maxCO2e = 999999;
 
-	let realRecommended = false;
-	let replantableRecommended = false;
-	let rentedRecommended = false;
-	let artificialRecommended = false;
+        let realRecommended = false;
+        let replantableRecommended = false;
+        let rentedRecommended = false;
+        let artificialRecommended = false;
 
-	let realCarbonFootprintItem; 
-	let replantableCarbonFootprintItem; 
-	let rentedCarbonFootprintItem; 
-	let artificialCarbonFootprintItem; 
+        // Evaluate custom conditional triggers from shifted indices context
+        for (let i = 0; i < num_years; i++) {
+            let rCF = realCarbonFootprint[i];
+            let pCF = replantableCarbonFootprint[i];
+            let nCF = rentedCarbonFootprint[i];
+            let aCF = artificialCarbonFootprint[i];
 
-
-	for (let i = 0; i < num_years; i++) {
-	
-	    realCarbonFootprintItem = realCarbonFootprint[i];
-	    replantableCarbonFootprintItem = replantableCarbonFootprint[i];
-	    rentedCarbonFootprintItem = rentedCarbonFootprint[i];
-	    artificialCarbonFootprintItem = artificialCarbonFootprint[i];
-
-            // 1. Disqualify trees based on user answers
-            if (userAnswers[5] == 1) {  // Allergies
-                realCarbonFootprintItem = maxCO2e;
-                replantableCarbonFootprintItem = maxCO2e;
-            	rentedCarbonFootprintItem = maxCO2e;
+            if (userAnswers[8] == 1) { // Allergies index tracking 8
+                rCF = maxCO2e; pCF = maxCO2e; nCF = maxCO2e;
             }
-            if (userAnswers[6] == 2 || userAnswers[7] == 3) {  // Ceiling too low OR kept > 4 weeks
-            	replantableCarbonFootprintItem = maxCO2e;
-            	rentedCarbonFootprintItem = maxCO2e;
+            if (userAnswers[9] == 2 || userAnswers[10] == 3) { // Ceiling or Keep times limits
+                pCF = maxCO2e; nCF = maxCO2e;
             }
-            if (userAnswers[7] == 2 || userAnswers[8] == 2 || userAnswers[9] == 2) {  // Kept > 10 days OR no space OR won't replant
-            	replantableCarbonFootprintItem = maxCO2e;
+            if (userAnswers[10] == 2 || userAnswers[11] == 2 || userAnswers[12] == 2) { 
+                pCF = maxCO2e;
             }
 
-            // 2. Find the lowest carbon footprint among the 4 options
-            let minFootprint = Math.min(
-            	realCarbonFootprintItem, 
-            	replantableCarbonFootprintItem,
-            	rentedCarbonFootprintItem, 
-            	artificialCarbonFootprintItem, 
-            );
+            let minFootprint = Math.min(rCF, pCF, nCF, aCF);
 
-            // 3. Assign the recommendation based on the winner
-	    recommended[i] = '';
-	    numRecommended = 0;
-            if (minFootprint == realCarbonFootprintItem) {
-	    	recommended[i] += 'Real';
-		numRecommended++;
-		realRecommended = true;
-	    }
-            if (minFootprint == replantableCarbonFootprintItem) {
-	    	if (numRecommended > 0) {
-		    recommended[i] += ', ';
-	    	}
-	    	recommended[i] += 'Replantable';
-		numRecommended++;
-		replantableRecommended = true;
-	    }
-            if (minFootprint == rentedCarbonFootprintItem) {
-	    	if (numRecommended > 0) {
-		    recommended[i] += ', ';
-	    	}
-	    	recommended[i] += 'Rented';
-		numRecommended++;
-		rentedRecommended = true;
-	    }
-            if (minFootprint == artificialCarbonFootprintItem) {
-	    	if (numRecommended > 0) {
-		    recommended[i] += ', ';
-	    	}
-	    	recommended[i] += 'Artificial';
-		numRecommended++;
-		artificialRecommended = true;
-	    }
-	    if (numRecommended > 1) {
-	    	recommended[i] += ' Trees';
-	    } else {
-	    	recommended[i] += ' Tree';
-	    } 
-	}
+            recommended[i] = '';
+            numRecommended = 0;
+            if (minFootprint == rCF) { recommended[i] += 'Real'; numRecommended++; realRecommended = true; }
+            if (minFootprint == pCF) { if (numRecommended > 0) recommended[i] += ', '; recommended[i] += 'Replantable'; numRecommended++; replantableRecommended = true; }
+            if (minFootprint == nCF) { if (numRecommended > 0) recommended[i] += ', '; recommended[i] += 'Rented'; numRecommended++; rentedRecommended = true; }
+            if (minFootprint == aCF) { if (numRecommended > 0) recommended[i] += ', '; recommended[i] += 'Artificial'; numRecommended++; artificialRecommended = true; }
+            recommended[i] += numRecommended > 1 ? ' Trees' : ' Tree';
+        }
 
-	// 4. Output the results to the screen
-    
-    	// An array makes handling the commas infinitely easier!
-    	let finalRecs = [];
-    	if (realRecommended) finalRecs.push('Real');
-    	if (replantableRecommended) finalRecs.push('Replantable');
-    	if (rentedRecommended) finalRecs.push('Rented');
-    	if (artificialRecommended) finalRecs.push('Artificial');
+        let finalRecs = [];
+        if (realRecommended) finalRecs.push('Real');
+        if (replantableRecommended) finalRecs.push('Replantable');
+        if (rentedRecommended) finalRecs.push('Rented');
+        if (artificialRecommended) finalRecs.push('Artificial');
 
-    	let treeSuffix = finalRecs.length > 1 ? 'Trees' : 'Tree';
-    	let combinedRecs = finalRecs.join(', ') + ' ' + treeSuffix;
+        let treeSuffix = finalRecs.length > 1 ? 'Trees' : 'Tree';
+        let combinedRecs = finalRecs.join(', ') + ' ' + treeSuffix;
 
-    	// Start building the stylish HTML string
-    	let htmlString = `
+        let htmlString = `
             <div class="results-card">
-            	<h3 class="results-subtitle">Your Best Eco-Friendly Match:</h3>
-            	<h2 class="results-winner">🌲 ${combinedRecs} 🌲</h2>
-            	<hr class="results-divider">
-            	<h4 class="timeline-title">Your Year-by-Year Breakdown:</h4>
-            	<ul class="timeline-list">
-    	`;
+                <h3 class="results-subtitle">Your Best Eco-Friendly Match:</h3>
+                <h2 class="results-winner">🌲 ${combinedRecs} 🌲</h2>
+                <hr class="results-divider">
+                <h4 class="timeline-title">Your Year-by-Year Breakdown:</h4>
+                <ul class="timeline-list">
+        `;
 
-    	// Timeline Logic (Fixed to include the final year!)
-    	let yearStart = years[0];
-    	for (let i = 0; i < num_years; i++) {
-            // Trigger if it is the LAST year, OR if the recommendation changes next year
+        let yearStart = years[0];
+        for (let i = 0; i < num_years; i++) {
             if (i === num_years - 1 || recommended[i] !== recommended[i+1]) {
-            	if (years[i] === yearStart) { 
-                    htmlString += `<li><span class="year-badge">${years[i]}</span> ${recommended[i]}</li>`;
-            	} else {
-                    htmlString += `<li><span class="year-badge">${yearStart} - ${years[i]}</span> ${recommended[i]}</li>`;
-            	}
-            
-                // Set the start year for the next chunk
-            	if (i < num_years - 1) {
-                     yearStart = years[i+1];
-            	}
+                if (years[i] === yearStart) { 
+                    htmlString += `<li><span class="year-badge">Year ${years[i]}</span> ${recommended[i]}</li>`;
+                } else {
+                    htmlString += `<li><span class="year-badge">Years ${yearStart} - ${years[i]}</span> ${recommended[i]}</li>`;
+                }
+                if (i < num_years - 1) yearStart = years[i+1];
             }
-    	}
+        }
+        htmlString += `</ul>`;
 
-	htmlString += `</ul>`; // Closes the timeline list
-
-	// Gather rationales for eliminated options before the loop
-    	let rationales = [];
-
-    	if (userAnswers[5] == 1) {  
-            rationales.push("Living trees are not recommended to protect against your allergies to pine sap, dust, and naturally occurring mold spores.");
-    	}
-    	else if (userAnswers[6] == 2) {  
-            rationales.push("Rented and Replantable trees are not recommended because your ceiling is not tall enough to accommodate their large root pots.");
-    	}
-    	else if (userAnswers[7] == 3) {  
-            rationales.push("Rented and Replantable trees are not recommended because keeping them indoors for more than 4 weeks will cause them to die from winter shock.");
-    	}
-	else if (userAnswers[7] == 2) {
-            rationales.push("Replantable tree is not recommended because keeping them indoors for more than 10 days drastically lowers their survival rate when planted.");
-    	}
-	else if (userAnswers[8] == 2) {
-	    rationales.push("Replantable tree is not recommended because you do not have the space to replant it.")
-	} 
-	else if (userAnswers[9] == 2) {  
-	    rationales.push("Replantable tree is not recommended because you prefer not to handle the heavy labor of planting them in frozen ground.")
-	}
-
-    	if (rationales.length > 0) {
-            htmlString += `
-            	<hr class="results-divider">
-            	<h4 class="timeline-title">Why some options are not recommended:</h4>
-            `;
+        let rationales = [];
+        if (userAnswers[8] == 1) rationales.push("Living options were omitted over allergy metrics.");
+        else if (userAnswers[9] == 2) rationales.push("Potted selections dropped due to low interior spacing limits.");
         
-            for (let r = 0; r < rationales.length; r++) {
-            	htmlString += `${rationales[r]}`;
-            }
-    	}
+        if (rationales.length > 0) {
+            htmlString += `<hr class="results-divider"><h4 class="timeline-title">Why some choices were skipped:</h4>`;
+            rationales.forEach(r => htmlString += `<p style="font-size:14px; color:#64748b; text-align:left;">• ${r}</p>`);
+        }
 
-    	// Finally, close the main card div
-    	htmlString += `</div>`;
-    	recText.innerHTML = htmlString;
+        htmlString += `</div>`;
+        recText.innerHTML = htmlString;
     }
 </script>
 
