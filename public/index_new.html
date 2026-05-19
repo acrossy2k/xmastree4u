@@ -327,6 +327,17 @@
                 transform: translateY(0);
             }
         }
+
+	.preview-box {
+            background-color: #e0f2fe;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            color: #0369a1;
+            font-size: 15px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -423,6 +434,7 @@
             </div>
         </div>
 
+	<div id="gas-co2-preview" class="preview-box" style="display: none;"></div>
         <button id="btn-step-3" onclick="processVehicleSelection()" disabled>Awaiting Vehicle Selection...</button>
         <br><br>
         <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
@@ -440,7 +452,7 @@
         <div id="phev-inputs" class="dynamic-sub-section">
             <p style="color:#0369a1; font-weight:600; margin-top:0;">Plug-in Hybrid Detected (Split Driving Math)</p>
             <div class="form-group">
-                <label for="distance-ev">Out of your total one-way trip, how many miles will be driven on pure battery power?</label>
+                <label for="distance-ev">Out of your total trip, how many miles will be driven on pure battery power?</label>
                 <input type="number" id="distance-ev" placeholder="e.g., 5" min="0">
             </div>
         </div>
@@ -452,7 +464,8 @@
             </div>
         </div>
 
-        <button id="btn-step-4" onclick="processElectricVehicleDetails()">Next Step</button>
+	<div id="ev-co2-preview" class="preview-box" style="display: none;"></div>
+        <button id="btn-step-4" onclick="processElectricVehicleDetails()" disabled>Next Step</button>
         <br><br>
         <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
@@ -576,6 +589,10 @@
     let dynamicRentedMileRate = 2.16;
     let dynamicReplantableMileRate = 1.08;
 
+    // Save live EV math
+    let currentEvKgPerMile = 0;
+    let currentGasKgPerMile = 0;
+
     function startQuiz() {
         document.getElementById('intro-step').classList.remove('active');
         document.getElementById('step-1').classList.add('active');
@@ -658,108 +675,162 @@
         });
     }
 
-    // --- Process Step 3 (EPA Car Selection) ---
-    async function processVehicleSelection() {
-        if (!currentVehicleData) return;
+    // Helper function to instantly show Gas Math on Step 3
+    function updateVehiclePreview() {
+        const previewDiv = document.getElementById('gas-co2-preview');
+        
+        // Reset step 4 elements in case they go back and change cars
+        document.getElementById('zip').value = '';
+        document.getElementById('ev-co2-preview').style.display = 'none';
+        document.getElementById('btn-step-4').disabled = true;
+        document.getElementById('btn-step-4').textContent = "Enter 5-Digit ZIP to Continue...";
+
+        if (!currentVehicleData) {
+            previewDiv.style.display = 'none';
+            return;
+        }
 
         const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
         const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
 
-        userAnswers.push(currentVehicleData.id); // Save vehicle ID tracking index 4
-
-        document.getElementById(`step-3`).classList.remove('active');
-
         if (!isPureEV && !isPHEV) {
-            // Standard Gasoline/Diesel Car Math
             const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
             const kgPerMile = co2Gpm / 1000;
-
-            // Tailpipe is fixed round-trip factor
-            dynamicRealMileRate = kgPerMile;
-            dynamicReplantableMileRate = kgPerMile;
-            dynamicRentedMileRate = kgPerMile * 2; // Rented gets double trips
-
-            userAnswers.push(0, ""); // Dummy filler elements for Step 4 indices
-            currentStep = 5; // Jump straight past Question 4
-            document.getElementById(`step-5`).classList.add('active');
-            updateProgress();
+            previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${kgPerMile.toFixed(3)} kg CO₂e per mile`;
+            previewDiv.style.display = 'block';
         } else {
-            // EV or PHEV detected -> Go to Question 4 panel setup
-            currentStep = 4;
-            document.getElementById('phev-inputs').classList.remove('active');
-            document.getElementById('zip-input').classList.remove('active');
-
-            if (isPHEV) document.getElementById('phev-inputs').classList.add('active');
-            document.getElementById('zip-input').classList.add('active');
-
-            document.getElementById(`step-4`).classList.add('active');
-            updateProgress();
+            previewDiv.style.display = 'none';
         }
     }
+
+    // Step 3 Listeners
+    document.getElementById('model').addEventListener('change', async (e) => {
+        const year = document.getElementById('year').value;
+        const make = document.getElementById('make').value;
+        const model = e.target.value;
+        const optionGroup = document.getElementById('option-group');
+        
+        document.getElementById('btn-step-3').disabled = true;
+        document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+        document.getElementById('gas-co2-preview').style.display = 'none';
+        resetDropdowns(['option']);
+        currentVehicleData = null;
+        optionGroup.style.display = 'none';
+        
+        if (!model) return;
+        
+        const data = await fetchEpaApi(`/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+        
+        if (data && data.menuItem) {
+            const items = Array.isArray(data.menuItem) ? data.menuItem : [data.menuItem];
+            
+            if (items.length === 1) {
+                populateDropdown('option', items, 'Select Specific Vehicle');
+                const vehicleId = items[0].value;
+                document.getElementById('option').value = vehicleId;
+                document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
+                
+                currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+                document.getElementById('btn-step-3').disabled = false;
+                document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+                
+                updateVehiclePreview(); // Trigger the live math!
+            } else {
+                optionGroup.style.display = 'block';
+                populateDropdown('option', items, 'Select Specific Vehicle');
+            }
+        }
+    });
+
+    document.getElementById('option').addEventListener('change', async (e) => {
+        const vehicleId = e.target.value;
+        document.getElementById('btn-step-3').disabled = true;
+        document.getElementById('gas-co2-preview').style.display = 'none';
+        currentVehicleData = null;
+        
+        if (!vehicleId) {
+            document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
+            return;
+        }
+        
+        document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
+        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        document.getElementById('btn-step-3').disabled = false;
+        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+        
+        updateVehiclePreview(); // Trigger the live math!
+    });
+
+
+    // --- Step 4: Live ZIP Code Listener ---
+    document.getElementById('zip').addEventListener('input', async (e) => {
+        const zip = e.target.value.trim();
+        const previewDiv = document.getElementById('ev-co2-preview');
+        const btn = document.getElementById('btn-step-4');
+
+        // Only fire the API when exactly 5 digits are present
+        if (zip.length === 5 && /^\d+$/.test(zip)) {
+            previewDiv.style.display = 'block';
+            previewDiv.innerHTML = `<span style="color:#0369a1;">Connecting to local energy grid...</span>`;
+            btn.disabled = true;
+
+            const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+            const kwhPer100 = parseFloat(isPHEV ? (currentVehicleData.phevCombE || currentVehicleData.combE || 30) : (currentVehicleData.combE || 30));
+            const kwhPerSingleMile = kwhPer100 / 100;
+
+            const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
+            if (gridAssessment && gridAssessment.co2e) {
+                const kgPerKwh = gridAssessment.co2e / 10;
+                currentEvKgPerMile = kwhPerSingleMile * kgPerKwh;
+            } else {
+                currentEvKgPerMile = kwhPerSingleMile * 0.39; // Fallback
+            }
+
+            if (isPHEV) {
+                const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
+                currentGasKgPerMile = 8.887 / gasMpg;
+                previewDiv.innerHTML = `
+                    <strong>Estimated EV Mode:</strong> ${currentEvKgPerMile.toFixed(3)} kg CO₂e per mile<br>
+                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${currentGasKgPerMile.toFixed(3)} kg CO₂e per mile
+                `;
+            } else {
+                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${currentEvKgPerMile.toFixed(3)} kg CO₂e per mile`;
+            }
+            
+            btn.disabled = false;
+            btn.textContent = "Confirm Details";
+        } else {
+            // Hide preview and lock button if they delete a number
+            previewDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = "Enter 5-Digit ZIP to Continue...";
+        }
+    });
 
     // --- Process Step 4 (EV/PHEV Grid Mechanics) ---
     async function processElectricVehicleDetails() {
         const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
         const zip = document.getElementById('zip').value.trim();
-        const btn = document.getElementById('btn-step-4');
-
         let evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
         
-        if (!zip || zip.length !== 5) {
-            alert("Please enter a valid 5-digit ZIP code.");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Analyzing local grid data...";
-
-        // Baseline rate parameters
-        let gasKgPerMile = 0;
-        let evKgPerMile = 0;
-
-        // 1. Calculate Electric emission rate via Climatiq
-        const kwhPer100 = parseFloat(isPHEV ? (currentVehicleData.phevCombE || currentVehicleData.combE || 30) : (currentVehicleData.combE || 30));
-        const kwhPerSingleMile = kwhPer100 / 100;
-
-        // Fetch a benchmark assessment for 10 kWh to isolate local grid scale factor
-        const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
-        if (gridAssessment && gridAssessment.co2e) {
-            const kgPerKwh = gridAssessment.co2e / 10;
-            evKgPerMile = kwhPerSingleMile * kgPerKwh;
-        } else {
-            // Reliable fallback fallback mapping national mixed averages
-            evKgPerMile = kwhPerSingleMile * 0.39; 
-        }
-
-        // 2. Calculate Gas components for Hybrid profiles
-        if (isPHEV) {
-            const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
-            gasKgPerMile = 8.887 / gasMpg;
-        }
-
-        // 3. Map dynamic parameters over real trips
         const totalDistanceQuery = userAnswers[1]; // Real distance chosen
 
         if (isPHEV) {
             if (evDist > totalDistanceQuery) evDist = totalDistanceQuery;
             const gasDist = totalDistanceQuery - evDist;
 
-            // Blended composite scaling per mile
-            const totalTripKg = (evDist * evKgPerMile) + (gasDist * gasKgPerMile);
+            // We use the live math that was saved in the global variables!
+            const totalTripKg = (evDist * currentEvKgPerMile) + (gasDist * currentGasKgPerMile);
             dynamicRealMileRate = totalTripKg / totalDistanceQuery;
             dynamicReplantableMileRate = dynamicRealMileRate;
-            dynamicRentedMileRate = dynamicRealMileRate * 2; // Double tracking trips
+            dynamicRentedMileRate = dynamicRealMileRate * 2; 
         } else {
-            // Pure EV logic profiles
-            dynamicRealMileRate = evKgPerMile;
-            dynamicReplantableMileRate = evKgPerMile;
-            dynamicRentedMileRate = evKgPerMile * 2;
+            dynamicRealMileRate = currentEvKgPerMile;
+            dynamicReplantableMileRate = currentEvKgPerMile;
+            dynamicRentedMileRate = currentEvKgPerMile * 2;
         }
 
         userAnswers.push(evDist, zip); // Store answers
-
-        btn.disabled = false;
-        btn.textContent = "Next Step";
 
         document.getElementById(`step-4`).classList.remove('active');
         currentStep = 5;
@@ -916,7 +987,7 @@
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
         currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
-        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+        document.getElementById('btn-step-3').textContent = "Next Step";
     });
 
     // --- Final Carbon Calculus Processing ---
