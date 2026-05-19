@@ -381,10 +381,10 @@
         </details>
 
         <div style="text-align: left; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <label for="dist-real" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Nearest Real-Tree Farm (miles)</label>
+            <label for="dist-real" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Real-Tree Farm (miles)</label>
             <input type="number" id="dist-real" min="1" max="100" placeholder="e.g. 15" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; margin-bottom: 18px; font-size: 16px;">
             
-            <label for="dist-rented" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Nearest Rental Nursery (miles)</label>
+            <label for="dist-rented" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Rental Nursery (miles)</label>
             <input type="number" id="dist-rented" min="1" max="100" placeholder="e.g. 25" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; margin-bottom: 18px; font-size: 16px;">
             
             <label for="dist-artificial" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Store for Artificial Trees (miles)</label>
@@ -430,7 +430,13 @@
 
     <!-- Question 4: NEW ADDITIONAL VEHICLE DETAILS (Skipped for Gas Cars) -->
     <div class="step" id="step-4">
-        <h2>Question 4: Additional Vehicle Details</h2>
+        <h2>Question 4: Additional Vehicle Details for Electric or Plug-in Hybrid Car</h2>
+
+    	<details class="why-box">
+            <summary>Why this question?</summary>
+            <p>Electric vehicles don't have tailpipe emissions, but the electricity used to charge them still carries a carbon footprint. By checking your ZIP code, we can securely connect to climate databases to see exactly how clean your local energy grid is (for example, whether it relies heavily on wind and solar, or natural gas and coal). If you drive a plug-in hybrid, knowing how many miles you drive on battery versus gas lets us perfectly calculate your split footprint!</p>
+        </details>
+
         <div id="phev-inputs" class="dynamic-sub-section">
             <p style="color:#0369a1; font-weight:600; margin-top:0;">Plug-in Hybrid Detected (Split Driving Math)</p>
             <div class="form-group">
@@ -786,32 +792,43 @@
     function goBack() {
         if (currentStep === 1) return;
 
+        // 1. Hide the current step
         document.getElementById(`step-${currentStep}`).classList.remove('active');
         
-        // Check structural jumps
+        // 2. Check for our structural jumps
         if (currentStep === 5) {
             const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
             const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
             
-            userAnswers.pop(); // Remove disposal
-            userAnswers.pop(); // Remove zip mapping or dummy entries
-            userAnswers.pop(); // Remove battery details or dummy entries
-            userAnswers.pop(); // Remove vehicle id mapping
-
-            currentStep = 3; 
+            if (!isPureEV && !isPHEV) {
+                // GAS CAR: They skipped Step 4. Go back to Step 3 and remove the 3 items pushed there (carId + 2 dummies)
+                userAnswers.pop(); // Remove dummy zip
+                userAnswers.pop(); // Remove dummy EV distance
+                userAnswers.pop(); // Remove vehicle ID
+                currentStep = 3; 
+            } else {
+                // EV / PHEV: They just came from Step 4. Go back to Step 4 and remove the 2 items pushed there
+                userAnswers.pop(); // Remove ZIP code
+                userAnswers.pop(); // Remove EV distance
+                currentStep = 4;
+            }
         } else if (currentStep === 4) {
-            userAnswers.pop(); // Remove vehicle identifier tracking
+            // If they are on Step 4 and click back, they are going back to Step 3
+            userAnswers.pop(); // Remove vehicle ID
             currentStep = 3;
         } else if (currentStep === 3) {
-            userAnswers.pop(); // Remove Art dist
-            userAnswers.pop(); // Remove Rent dist
-            userAnswers.pop(); // Remove Real dist
+            // If they are on Step 3, they are going back to the three distance inputs
+            userAnswers.pop(); // Remove Artificial distance
+            userAnswers.pop(); // Remove Rented distance
+            userAnswers.pop(); // Remove Real distance
             currentStep = 2;
         } else {
+            // Standard one-step backward movement for the rest of the quiz
             userAnswers.pop();
             currentStep--;
         }
 
+        // 3. Reveal the correct previous step
         document.getElementById(`step-${currentStep}`).classList.add('active');
         updateProgress();
     }
