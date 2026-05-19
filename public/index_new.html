@@ -334,71 +334,26 @@
     </div>
 
     <div class="step" id="step-2">
-        <h2>Question 2: How many miles away is your nearest real‑tree farm?</h2>
+        <h2>Question 2: How many miles away are these locations?</h2>
 
-	<details class="why-box">
+        <details class="why-box">
             <summary>Why this question?</summary>
-            <p>Transportation is the hidden carbon cost of a real tree. Driving a gas-powered vehicle 40 miles to a rural farm can actually produce more emissions than the tree itself absorbed while growing!</p>
+            <p>Transportation is the hidden carbon cost of a tree. Driving a gas-powered vehicle long distances can actually produce more emissions than the tree itself absorbed while growing!</p>
         </details>
 
-        <button onclick="recordAnswer(5)">5 Miles</button>
-        <button onclick="recordAnswer(10)">10 Miles</button>
-        <button onclick="recordAnswer(15)">15 Miles</button>
-        <button onclick="recordAnswer(20)">20 Miles</button>
-        <button onclick="recordAnswer(25)">25 Miles</button>
-        <button onclick="recordAnswer(30)">30 Miles</button>
-        <button onclick="recordAnswer(35)">35 Miles</button>
-        <button onclick="recordAnswer(40)">40 Miles</button>
-        <button onclick="recordAnswer(45)">45 Miles</button>
-        <button onclick="recordAnswer(50)">50 Miles</button>
+        <div style="text-align: left; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <label for="dist-real" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Nearest Real-Tree Farm (miles)</label>
+            <input type="number" id="dist-real" min="1" max="100" placeholder="e.g. 15" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; margin-bottom: 18px; font-size: 16px;">
+            
+            <label for="dist-rented" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Nearest Rental Nursery (miles)</label>
+            <input type="number" id="dist-rented" min="1" max="100" placeholder="e.g. 25" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; margin-bottom: 18px; font-size: 16px;">
+            
+            <label for="dist-artificial" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #475569;">Store for Artificial Trees (miles)</label>
+            <input type="number" id="dist-artificial" min="1" max="100" placeholder="e.g. 5" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 16px;">
+        </div>
 
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
-    </div>
-
-    <div class="step" id="step-3">
-        <h2>Question 3: How many miles away is your nearest rental nursery?</h2>
-
-	<details class="why-box">
-            <summary>Why this question?</summary>
-            <p>Rented trees require two trips—one to pick it up, and one to return it after the holidays. This effectively doubles the transportation emissions, so we need to account for those extra miles.</p>
-        </details>
-
-        <button onclick="recordAnswer(5)">5 Miles</button>
-        <button onclick="recordAnswer(10)">10 Miles</button>
-        <button onclick="recordAnswer(15)">15 Miles</button>
-        <button onclick="recordAnswer(20)">20 Miles</button>
-        <button onclick="recordAnswer(25)">25 Miles</button>
-        <button onclick="recordAnswer(30)">30 Miles</button>
-        <button onclick="recordAnswer(35)">35 Miles</button>
-        <button onclick="recordAnswer(40)">40 Miles</button>
-        <button onclick="recordAnswer(45)">45 Miles</button>
-        <button onclick="recordAnswer(50)">50 Miles</button>
-
-	<br><br>
-        <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
-    </div>
-
-    <div class="step" id="step-4">
-        <h2>Question 4: How many miles away is the store where you would buy an artificial tree?</h2>
-
-	<details class="why-box">
-            <summary>Why this question?</summary>
-            <p>Artificial trees are usually purchased at local big-box stores rather than distant farms. Tracking this specific distance helps us accurately compare the local drive against the trip to a tree farm.</p>
-        </details>
-
-        <button onclick="recordAnswer(5)">5 Miles</button>
-        <button onclick="recordAnswer(10)">10 Miles</button>
-        <button onclick="recordAnswer(15)">15 Miles</button>
-        <button onclick="recordAnswer(20)">20 Miles</button>
-        <button onclick="recordAnswer(25)">25 Miles</button>
-        <button onclick="recordAnswer(30)">30 Miles</button>
-        <button onclick="recordAnswer(35)">35 Miles</button>
-        <button onclick="recordAnswer(40)">40 Miles</button>
-        <button onclick="recordAnswer(45)">45 Miles</button>
-        <button onclick="recordAnswer(50)">50 Miles</button>
-
-	<br><br>
+        <button onclick="recordDistances()">Next Step</button>
+        <br><br>
         <button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
