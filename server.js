@@ -4,6 +4,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.static('public'));
+app.use(express.json());
 
 app.get('/api/epa/*', async (req, res) => {
     try {
@@ -37,6 +38,50 @@ app.get('/api/epa/*', async (req, res) => {
     } catch (error) {
         console.error("Network Error:", error);
         res.status(500).json({ error: "Failed to connect to EPA server" });
+    }
+});
+
+app.post('/api/climatiq', async (req, res) => {
+    try {
+        // 1. Receive the data from your frontend
+        const { zipCode, totalKwh } = req.body;
+        
+        // 2. Safely grab the API key from Render's secure vault
+        const apiKey = process.env.CLIMATIQ_API_KEY;
+
+        // 3. Forward the request to Climatiq
+        const response = await fetch('https://api.climatiq.io/data/v1/estimate', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "emission_factor": {
+                    "activity_id": "electricity-supply_grid-source_residual_mix",
+                    "data_version": "33.33"
+                },
+                "parameters": {
+                    "energy": totalKwh,
+                    "energy_unit": "kWh"
+                },
+                "location": {
+                    "country": "US",
+                    "postal_code": zipCode
+                }
+            })
+        });
+
+        // 4. Send the result back to your frontend
+        const data = await response.json();
+        if (!response.ok) {
+            return res.status(response.status).json(data);
+        }
+        res.json(data);
+
+    } catch (error) {
+        console.error("Climatiq Backend Error:", error);
+        res.status(500).json({ error: "Failed to connect to Climatiq proxy" });
     }
 });
 
