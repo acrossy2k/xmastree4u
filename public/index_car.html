@@ -169,14 +169,18 @@
     // --- Configuration ---
     const EPA_BASE_URL = 'https://www.fueleconomy.gov/ws/rest/vehicle';
 
+    // --- Global State ---
+    // Explicitly declaring this ensures all dropdowns can read and write vehicle data perfectly
+    let currentVehicleData = null; 
+
     // --- Helpers ---
     async function fetchEpaApi(endpoint) {
         try {
             const response = await fetch(`${EPA_BASE_URL}${endpoint}`, {
-	    	headers: { 
-        	    'Accept': 'application/json',
-        	    'User-Agent': 'XmasTree4U (acrossy2k@gmail.com)' // Identifies your app
-		}
+                headers: { 
+                    'Accept': 'application/json',
+                    'User-Agent': 'XmasTree4U (acrossy2k@gmail.com)'
+                }
             });
             if (!response.ok) throw new Error('EPA API Network response was not ok');
             return await response.json();
@@ -188,26 +192,25 @@
     }
 
     async function fetchClimatiqGridEmissions(zipCode, totalKwh) {
-    	try {
-            // Send the data to your own secure backend instead of Climatiq
+        try {
             const response = await fetch('/api/climatiq', {
-            	method: 'POST',
-            	headers: {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json'
-            	},
-            	body: JSON.stringify({ zipCode: zipCode, totalKwh: totalKwh })
+                },
+                body: JSON.stringify({ zipCode: zipCode, totalKwh: totalKwh })
             });
 
             if (!response.ok) {
-            	console.error("Backend Proxy Climatiq Error:", await response.text());
-            	return null;
+                console.error("Backend Proxy Climatiq Error:", await response.text());
+                return null;
             }
 
             return await response.json();
-    	} catch (networkError) {
+        } catch (networkError) {
             console.error("Critical Network Error:", networkError.message);
             return null;
-    	}
+        }
     }
 
     function populateDropdown(selectId, dataList, defaultText) {
@@ -263,7 +266,6 @@
             standardInputs.classList.add('active');
             zipInput.classList.add('active');
         } else {
-            // Standard ICE or non-plug Hybrid
             standardInputs.classList.add('active');
         }
     }
@@ -276,7 +278,7 @@
 
     document.getElementById('year').addEventListener('change', async (e) => {
         const year = e.target.value;
-        document.getElementById('option-group').style.display = 'none'; // Keep hidden
+        document.getElementById('option-group').style.display = 'none'; 
         resetDropdowns(['make', 'model', 'option']);
         updateUIForVehicleType(null);
         if (!year) return;
@@ -287,7 +289,7 @@
     document.getElementById('make').addEventListener('change', async (e) => {
         const year = document.getElementById('year').value;
         const make = e.target.value;
-        document.getElementById('option-group').style.display = 'none'; // Keep hidden
+        document.getElementById('option-group').style.display = 'none'; 
         resetDropdowns(['model', 'option']);
         updateUIForVehicleType(null);
         if (!make) return;
@@ -303,7 +305,7 @@
         
         resetDropdowns(['option']);
         updateUIForVehicleType(null);
-        optionGroup.style.display = 'none'; // Default to hidden while loading
+        optionGroup.style.display = 'none'; 
         
         if (!model) return;
         
@@ -313,17 +315,25 @@
             const items = Array.isArray(data.menuItem) ? data.menuItem : [data.menuItem];
             
             if (items.length === 1) {
-                // Keep the dropdown hidden and auto-load the single vehicle
                 document.getElementById('calculate').textContent = "Loading vehicle data...";
                 const vehicleId = items[0].value;
                 currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
                 updateUIForVehicleType(currentVehicleData);
             } else {
-                // If there are multiple options, reveal the dropdown!
                 optionGroup.style.display = 'block';
                 populateDropdown('option', items, 'Select Specific Vehicle');
             }
         }
+    });
+
+    // Manual Option Selection Listener
+    document.getElementById('option').addEventListener('change', async (e) => {
+        const vehicleId = e.target.value;
+        if (!vehicleId) return updateUIForVehicleType(null);
+        
+        document.getElementById('calculate').textContent = "Loading vehicle data...";
+        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        updateUIForVehicleType(currentVehicleData);
     });
 
     // --- Final Calculation Logic ---
@@ -343,7 +353,6 @@
         btn.disabled = true;
         btn.textContent = "Calculating...";
 
-        // 1. Handle Pure EV
         if (isPureEV) {
             const distance = parseFloat(document.getElementById('distance').value);
             if (isNaN(distance) || distance <= 0) return alert("Enter valid distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
@@ -360,14 +369,12 @@
                 return alert("API Error. Check console."), btn.disabled=false, btn.textContent="Calculate Footprint";
             }
         } 
-        // 2. Handle PHEV (Split Trip)
         else if (isPHEV) {
             const evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
             const gasDist = parseFloat(document.getElementById('distance-gas').value) || 0;
             
             if (evDist + gasDist <= 0) return alert("Enter distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
 
-            // Gas Math (Using standard combined MPG to find fuel used, 8.887kg per gal)
             if (gasDist > 0) {
                 const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
                 const gallonsUsed = gasDist / gasMpg;
@@ -376,7 +383,6 @@
                 gasText = `Gas: ${gasDist} miles at ${gasMpg} MPG (${gasKgCo2.toFixed(2)} kg)`;
             }
 
-            // EV Math
             if (evDist > 0) {
                 if (!zipCode || zipCode.length !== 5) return alert("Enter valid ZIP for battery portion."), btn.disabled=false, btn.textContent="Calculate Footprint";
                 
@@ -392,7 +398,6 @@
                 }
             }
         } 
-        // 3. Handle Standard ICE / Non-plug Hybrid
         else {
             const distance = parseFloat(document.getElementById('distance').value);
             if (isNaN(distance) || distance <= 0) return alert("Enter valid distance."), btn.disabled=false, btn.textContent="Calculate Footprint";
@@ -402,7 +407,6 @@
             gasText = `Tailpipe: ${co2Gpm} g/mile × ${distance} miles`;
         }
 
-        // Render Results
         document.getElementById('co2-total').textContent = `${totalKgCo2.toFixed(2)} kg CO₂e`;
         document.getElementById('co2-math-gas').textContent = gasText;
         document.getElementById('co2-math-ev').textContent = evText;
