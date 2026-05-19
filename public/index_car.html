@@ -124,7 +124,7 @@
         <label for="model">3. Model</label>
         <select id="model" disabled><option value="">Select a Make first</option></select>
     </div>
-    <div class="form-group">
+    <div class="form-group" id="option-group">
         <label for="option">4. Specific Trim/Engine</label>
         <select id="option" disabled><option value="">Select a Model first</option></select>
     </div>
@@ -276,6 +276,7 @@
 
     document.getElementById('year').addEventListener('change', async (e) => {
         const year = e.target.value;
+        document.getElementById('option-group').style.display = 'block'; // Unhide just in case
         resetDropdowns(['make', 'model', 'option']);
         updateUIForVehicleType(null);
         if (!year) return;
@@ -286,6 +287,7 @@
     document.getElementById('make').addEventListener('change', async (e) => {
         const year = document.getElementById('year').value;
         const make = e.target.value;
+        document.getElementById('option-group').style.display = 'block'; // Unhide just in case
         resetDropdowns(['model', 'option']);
         updateUIForVehicleType(null);
         if (!make) return;
@@ -297,20 +299,33 @@
         const year = document.getElementById('year').value;
         const make = document.getElementById('make').value;
         const model = e.target.value;
+        const optionGroup = document.getElementById('option-group');
+        
         resetDropdowns(['option']);
         updateUIForVehicleType(null);
-        if (!model) return;
-        const data = await fetchEpaApi(`/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
-        if (data && data.menuItem) populateDropdown('option', data.menuItem, 'Select Specific Vehicle');
-    });
-
-    document.getElementById('option').addEventListener('change', async (e) => {
-        const vehicleId = e.target.value;
-        if (!vehicleId) return updateUIForVehicleType(null);
+        optionGroup.style.display = 'block'; // Default to showing it
         
-        document.getElementById('calculate').textContent = "Loading vehicle data...";
-        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
-        updateUIForVehicleType(currentVehicleData);
+        if (!model) return;
+        
+        const data = await fetchEpaApi(`/menu/options?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+        
+        if (data && data.menuItem) {
+            // Check if there is only one item or an array of multiple items
+            const items = Array.isArray(data.menuItem) ? data.menuItem : [data.menuItem];
+            
+            if (items.length === 1) {
+                // Magic happens here! Hide the dropdown and auto-load the single vehicle
+                optionGroup.style.display = 'none';
+                document.getElementById('calculate').textContent = "Loading vehicle data...";
+                
+                const vehicleId = items[0].value;
+                currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+                updateUIForVehicleType(currentVehicleData);
+            } else {
+                // If there are multiple options, show the dropdown normally
+                populateDropdown('option', items, 'Select Specific Vehicle');
+            }
+        }
     });
 
     // --- Final Calculation Logic ---
