@@ -683,7 +683,7 @@
         document.getElementById('zip').value = '';
         document.getElementById('ev-co2-preview').style.display = 'none';
         document.getElementById('btn-step-4').disabled = true;
-        document.getElementById('btn-step-4').textContent = "Enter 5-Digit ZIP to Continue...";
+        document.getElementById('btn-step-4').textContent = "Awaiting Additional Details...";
 
         if (!currentVehicleData) {
             previewDiv.style.display = 'none';
@@ -838,7 +838,7 @@
             // Hide preview and lock button if they delete a number
             previewDiv.style.display = 'none';
             btn.disabled = true;
-            btn.textContent = "Enter 5-Digit ZIP to Continue...";
+            btn.textContent = "Awaiting Additional Details...";
         }
     });
 
