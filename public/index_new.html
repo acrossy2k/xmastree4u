@@ -699,7 +699,8 @@
             previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${kgPerMile.toFixed(3)} kg CO₂e per mile`;
             previewDiv.style.display = 'block';
         } else {
-            previewDiv.style.display = 'none';
+	    previewDiv.innerHTML = `More information is needed for electric and plug-in hybrid vehicles.`;
+            previewDiv.style.display = 'block';
         }
     }
 
