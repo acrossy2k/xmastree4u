@@ -826,8 +826,19 @@
 
             if (isPHEV) {
                 const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
-		console.error(gasMpg);
                 currentGasKgPerMile = 8.887 / gasMpg;
+
+		// === DIAGNOSTIC DEBUG LOG ===
+                console.warn("=== PHEV MATH DEBUG ===");
+                console.log("Vehicle:", currentVehicleData.make, currentVehicleData.model);
+                console.log("EPA kwhPer100:", kwhPer100);
+                console.log("Grid kg/kWh rate:", currentEvKgPerMile / (kwhPer100 / 100));
+                console.log("EPA gasMpg (comb08):", gasMpg);
+                console.log("FINAL EV kg/mile:", currentEvKgPerMile);
+                console.log("FINAL Gas kg/mile:", currentGasKgPerMile);
+                console.log("Full EPA Data Object:", currentVehicleData);
+                console.warn("=======================");
+
                 previewDiv.innerHTML = `
                     <strong>Estimated EV Mode:</strong> ${currentEvKgPerMile.toFixed(3)} kg CO₂e per mile<br>
                     <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${currentGasKgPerMile.toFixed(3)} kg CO₂e per mile
