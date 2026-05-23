@@ -292,7 +292,7 @@
             font-size: 0.9rem;
             color: #475569;
         }
-        select, input[type="text"] {
+        select, input[type="text"], input[type="number"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #cbd5e1;
@@ -699,7 +699,6 @@
             previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${kgPerMile.toFixed(3)} kg CO₂e per mile`;
             previewDiv.style.display = 'block';
         } else {
-	    console.error("123");
 	    previewDiv.innerHTML = `More information is needed for electric and plug-in hybrid vehicles.`;
             previewDiv.style.display = 'block';
         }
@@ -729,6 +728,8 @@
             if (items.length === 1) {
                 const vehicleId = items[0].value;
                 document.getElementById('option').value = vehicleId;
+
+		document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
                 currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
                 document.getElementById('btn-step-3').disabled = false;
                 document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
