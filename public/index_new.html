@@ -732,12 +732,12 @@
                 
                 currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
                 document.getElementById('btn-step-3').disabled = false;
-                document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+                document.getElementById('btn-step-3').textContent = "Next Step;
                 
                 updateVehiclePreview(); // Trigger the live math!
             } else {
                 optionGroup.style.display = 'block';
-                populateDropdown('option', items, 'Select Specific Vehicle');
+                populateDropdown('option', items, 'Next Step');
             }
         }
     });
@@ -756,11 +756,49 @@
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
         currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
-        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
+        document.getElementById('btn-step-3').textContent = "Next Step";
         
         updateVehiclePreview(); // Trigger the live math!
     });
 
+    // --- Step 3: Car Selection based on EPA data ---
+    async function processVehicleSelection() {
+        if (!currentVehicleData) return;
+
+        const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
+        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+
+        userAnswers.push(currentVehicleData.id); // Save vehicle ID tracking index 4
+
+        document.getElementById(`step-3`).classList.remove('active');
+
+        if (!isPureEV && !isPHEV) {
+            // Standard Gasoline/Diesel Car Math
+            const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
+            const kgPerMile = co2Gpm / 1000;
+
+            // Tailpipe is fixed round-trip factor
+            dynamicRealMileRate = kgPerMile;
+            dynamicReplantableMileRate = kgPerMile;
+            dynamicRentedMileRate = kgPerMile * 2; // Rented gets double trips
+
+            userAnswers.push(0, ""); // Dummy filler elements for Step 4 indices
+            currentStep = 5; // Jump straight past Question 4
+            document.getElementById(`step-5`).classList.add('active');
+            updateProgress();
+        } else {
+            // EV or PHEV detected -> Go to Question 4 panel setup
+            currentStep = 4;
+            document.getElementById('phev-inputs').classList.remove('active');
+            document.getElementById('zip-input').classList.remove('active');
+
+            if (isPHEV) document.getElementById('phev-inputs').classList.add('active');
+            document.getElementById('zip-input').classList.add('active');
+
+            document.getElementById(`step-4`).classList.add('active');
+            updateProgress();
+        }
+    }
 
     // --- Step 4: Live ZIP Code Listener ---
     document.getElementById('zip').addEventListener('input', async (e) => {
