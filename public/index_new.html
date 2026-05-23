@@ -725,19 +725,16 @@
             const items = Array.isArray(data.menuItem) ? data.menuItem : [data.menuItem];
             
             if (items.length === 1) {
-                populateDropdown('option', items, 'Select Specific Vehicle');
                 const vehicleId = items[0].value;
                 document.getElementById('option').value = vehicleId;
-                document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
-                
                 currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
                 document.getElementById('btn-step-3').disabled = false;
-                document.getElementById('btn-step-3').textContent = "Next Step;
+                document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
                 
                 updateVehiclePreview(); // Trigger the live math!
             } else {
                 optionGroup.style.display = 'block';
-                populateDropdown('option', items, 'Next Step');
+                populateDropdown('option', items, 'Awaiting Vehicle Selection...');
             }
         }
     });
@@ -756,7 +753,7 @@
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
         currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
-        document.getElementById('btn-step-3').textContent = "Next Step";
+        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
         
         updateVehiclePreview(); // Trigger the live math!
     });
@@ -1025,7 +1022,7 @@
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
         currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
-        document.getElementById('btn-step-3').textContent = "Next Step";
+        document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
     });
 
     // --- Final Carbon Calculus Processing ---
