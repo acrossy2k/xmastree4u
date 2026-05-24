@@ -58,7 +58,7 @@ app.post('/api/climatiq', async (req, res) => {
             },
             body: JSON.stringify({
                 "emission_factor": {
-                    "activity_id": "electricity-supply_grid-source_residual_mix",
+                    "activity_id": "electricity-energy_source_grid_mix",
                     "data_version": "33.33"
                 },
                 "parameters": {
