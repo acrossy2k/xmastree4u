@@ -582,7 +582,7 @@
     let currentStep = 1;
     const totalSteps = 10; 
     let userAnswers = []; 
-    let currentVehicleData = null;
+    let VehicleData = null;
     
     // Dynamic Calculated Driving Rates (kg CO2e per single mile)
     let dynamicRealMileRate = 1.08; 
@@ -590,8 +590,8 @@
     let dynamicReplantableMileRate = 1.08;
 
     // Save live EV math
-    let currentEvKgPerMile = 0;
-    let currentGasKgPerMile = 0;
+    let EvKgPerMile = 0;
+    let GasKgPerMile = 0;
 
     function startQuiz() {
         document.getElementById('intro-step').classList.remove('active');
@@ -685,16 +685,16 @@
         document.getElementById('btn-step-4').disabled = true;
         document.getElementById('btn-step-4').textContent = "Awaiting Additional Details...";
 
-        if (!currentVehicleData) {
+        if (!VehicleData) {
             previewDiv.style.display = 'none';
             return;
         }
 
-        const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
-        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+        const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
+        const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 
         if (!isPureEV && !isPHEV) {
-            const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
+            const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
             const kgPerMile = co2Gpm / 1000;
             previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${kgPerMile.toFixed(3)} kg CO₂e per mile`;
             previewDiv.style.display = 'block';
@@ -715,7 +715,7 @@
         document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
         document.getElementById('gas-co2-preview').style.display = 'none';
         resetDropdowns(['option']);
-        currentVehicleData = null;
+        VehicleData = null;
         optionGroup.style.display = 'none';
         
         if (!model) return;
@@ -730,7 +730,7 @@
                 document.getElementById('option').value = vehicleId;
 
 		document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
-                currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+                VehicleData = await fetchEpaApi(`/${vehicleId}`);
                 document.getElementById('btn-step-3').disabled = false;
                 document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
                 
@@ -746,7 +746,7 @@
         const vehicleId = e.target.value;
         document.getElementById('btn-step-3').disabled = true;
         document.getElementById('gas-co2-preview').style.display = 'none';
-        currentVehicleData = null;
+        VehicleData = null;
         
         if (!vehicleId) {
             document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
@@ -754,7 +754,7 @@
         }
         
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
-        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        VehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
         document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
         
@@ -763,18 +763,18 @@
 
     // --- Step 3: Car Selection based on EPA data ---
     async function processVehicleSelection() {
-        if (!currentVehicleData) return;
+        if (!VehicleData) return;
 
-        const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
-        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+        const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
+        const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 
-        userAnswers.push(currentVehicleData.id); // Save vehicle ID tracking index 4
+        userAnswers.push(VehicleData.id); // Save vehicle ID tracking index 4
 
         document.getElementById(`step-3`).classList.remove('active');
 
         if (!isPureEV && !isPHEV) {
             // Standard Gasoline/Diesel Car Math
-            const co2Gpm = parseFloat(currentVehicleData.co2TailpipeGpm);
+            const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
             const kgPerMile = co2Gpm / 1000;
 
             // Tailpipe is fixed round-trip factor
@@ -812,48 +812,57 @@
             previewDiv.innerHTML = `<span style="color:#0369a1;">Connecting to local energy grid...</span>`;
             btn.disabled = true;
 
-            const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+            const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 
 	    let kwhPerSingleMile;
-            if (isPHEV && currentVehicleData.phevComb) {
+            if (isPHEV && VehicleData.phevComb) {
                 // PHEVs use MPGe. We convert MPGe directly to "kWh per mile" using the EPA 33.7 constant
-                const phevMpge = parseFloat(currentVehicleData.phevComb) || 60; // 60 MPGe safe fallback
+                const phevMpge = parseFloat(VehicleData.phevComb) || 60; // 60 MPGe safe fallback
                 kwhPerSingleMile = 33.7 / phevMpge;
             } else {
                 // Pure EVs use combE, which is already safely measured in kWh per 100 miles
-                const kwhPer100 = parseFloat(currentVehicleData.combE || 30);
+                const kwhPer100 = parseFloat(VehicleData.combE || 30);
                 kwhPerSingleMile = kwhPer100 / 100;
             }
 
             const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
             if (gridAssessment && gridAssessment.co2e) {
                 const kgPerKwh = gridAssessment.co2e / 10;
-                currentEvKgPerMile = kwhPerSingleMile * kgPerKwh;
+                EvKgPerMile = kwhPerSingleMile * kgPerKwh;
             } else {
-                currentEvKgPerMile = kwhPerSingleMile * 0.39; // Fallback
+                EvKgPerMile = kwhPerSingleMile * 0.39; // Fallback
             }
 
             if (isPHEV) {
                 const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
-                currentGasKgPerMile = 8.887 / gasMpg;
+                currentGasKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
 
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== PHEV MATH DEBUG ===");
-                console.log("Vehicle:", currentVehicleData.make, currentVehicleData.model);
+                console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", currentEvKgPerMile / kwhPerSingleMile);
-                console.log("EPA gasMpg (comb08):", gasMpg);
-                console.log("FINAL EV kg/mile:", currentEvKgPerMile);
-                console.log("FINAL Gas kg/mile:", currentGasKgPerMile);
-                console.log("Full EPA Data Object:", currentVehicleData);
+                console.log("Grid kg/kWh rate:", EvKgPerMile / kwhPerSingleMile);
+                console.log("co2Gpm:", co2Gpm);
+                console.log("EV kg/mile:", EvKgPerMile);
+                console.log("Gas kg/mile:", GasKgPerMile);
+                console.log("Full EPA Data Object:", VehicleData);
                 console.warn("=======================");
 
                 previewDiv.innerHTML = `
-                    <strong>Estimated EV Mode:</strong> ${currentEvKgPerMile.toFixed(3)} kg CO₂e per mile<br>
-                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${currentGasKgPerMile.toFixed(3)} kg CO₂e per mile
+                    <strong>Estimated EV Mode:</strong> ${EvKgPerMile.toFixed(3)} kg CO₂e per mile<br>
+                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${GasKgPerMile.toFixed(3)} kg CO₂e per mile
                 `;
             } else {
-                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${currentEvKgPerMile.toFixed(3)} kg CO₂e per mile`;
+		// === DIAGNOSTIC DEBUG LOG ===
+                console.warn("=== EV MATH DEBUG ===");
+                console.log("Vehicle:", VehicleData.make, VehicleData.model);
+                console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
+                console.log("Grid kg/kWh rate:", EvKgPerMile / kwhPerSingleMile);
+                console.log("EV kg/mile:", EvKgPerMile);
+                console.log("Full EPA Data Object:", VehicleData);
+                console.warn("=======================");
+
+                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${EvKgPerMile.toFixed(3)} kg CO₂e per mile`;
             }
             
             btn.disabled = false;
@@ -868,7 +877,7 @@
 
     // --- Process Step 4 (EV/PHEV Grid Mechanics) ---
     async function processElectricVehicleDetails() {
-        const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+        const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
         const zip = document.getElementById('zip').value.trim();
         let evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
         
@@ -879,14 +888,14 @@
             const gasDist = totalDistanceQuery - evDist;
 
             // We use the live math that was saved in the global variables!
-            const totalTripKg = (evDist * currentEvKgPerMile) + (gasDist * currentGasKgPerMile);
+            const totalTripKg = (evDist * EvKgPerMile) + (gasDist * GasKgPerMile);
             dynamicRealMileRate = totalTripKg / totalDistanceQuery;
             dynamicReplantableMileRate = dynamicRealMileRate;
             dynamicRentedMileRate = dynamicRealMileRate * 2; 
         } else {
-            dynamicRealMileRate = currentEvKgPerMile;
-            dynamicReplantableMileRate = currentEvKgPerMile;
-            dynamicRentedMileRate = currentEvKgPerMile * 2;
+            dynamicRealMileRate = EvKgPerMile;
+            dynamicReplantableMileRate = EvKgPerMile;
+            dynamicRentedMileRate = EvKgPerMile * 2;
         }
 
         userAnswers.push(evDist, zip); // Store answers
@@ -927,8 +936,8 @@
         
         // 2. Check for our structural jumps
         if (currentStep === 5) {
-            const isPureEV = currentVehicleData.co2TailpipeGpm === "0.0" && currentVehicleData.fuelType1.includes("Electricity");
-            const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
+            const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
+            const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
             
             if (!isPureEV && !isPHEV) {
                 // GAS CAR: They skipped Step 4. Go back to Step 3 and remove the 3 items pushed there (carId + 2 dummies)
@@ -981,7 +990,7 @@
         document.getElementById('btn-step-3').disabled = true;
         document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
         resetDropdowns(['make', 'model', 'option']);
-        currentVehicleData = null;
+        VehicleData = null;
         if (!year) return;
         const data = await fetchEpaApi(`/menu/make?year=${year}`);
         if (data && data.menuItem) populateDropdown('make', data.menuItem, 'Select Make');
@@ -994,7 +1003,7 @@
         document.getElementById('btn-step-3').disabled = true;
         document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
         resetDropdowns(['model', 'option']);
-        currentVehicleData = null;
+        VehicleData = null;
         if (!make) return;
         const data = await fetchEpaApi(`/menu/model?year=${year}&make=${encodeURIComponent(make)}`);
         if (data && data.menuItem) populateDropdown('model', data.menuItem, 'Select Model');
@@ -1009,7 +1018,7 @@
         document.getElementById('btn-step-3').disabled = true;
         document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
         resetDropdowns(['option']);
-        currentVehicleData = null;
+        VehicleData = null;
         optionGroup.style.display = 'none';
         
         if (!model) return;
@@ -1025,7 +1034,7 @@
                 document.getElementById('option').value = vehicleId;
                 document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
                 
-                currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+                VehicleData = await fetchEpaApi(`/${vehicleId}`);
                 document.getElementById('btn-step-3').disabled = false;
                 document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
             } else {
@@ -1038,13 +1047,13 @@
     document.getElementById('option').addEventListener('change', async (e) => {
         const vehicleId = e.target.value;
         document.getElementById('btn-step-3').disabled = true;
-        currentVehicleData = null;
+        VehicleData = null;
         if (!vehicleId) {
             document.getElementById('btn-step-3').textContent = "Awaiting Vehicle Selection...";
             return;
         }
         document.getElementById('btn-step-3').textContent = "Loading vehicle specs...";
-        currentVehicleData = await fetchEpaApi(`/${vehicleId}`);
+        VehicleData = await fetchEpaApi(`/${vehicleId}`);
         document.getElementById('btn-step-3').disabled = false;
         document.getElementById('btn-step-3').textContent = "Confirm Vehicle Choice";
     });
