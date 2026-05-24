@@ -1050,15 +1050,15 @@
 	let artificialCO2eKgTransportation;
 
 	if (isPHEV) {
-	    realCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReal * 2;
-	    replantableCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReplantable * 2;
-	    rentedCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceRented * 2;
-	    artificialCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceArtificial * 2;
-	} else {
 	    realCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReal * 2, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReal * 2, phevEvDist));
 	    replantableCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReplantable * 2, phevEvDist) + gasCO2eKgPerMile * (distanceReplantable - Math.min(distanceReplantable * 2, phevEvDist));
 	    rentedCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceRented * 2, phevEvDist) + gasCO2eKgPerMile * (distanceRented - Math.min(distanceRented * 2, phevEvDist));
 	    artificialCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceArtificial * 2, phevEvDist) + gasCO2eKgPerMile * (distanceArtificial - Math.min(distanceArtificial * 2, phevEvDist));
+	} else {
+	    realCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReal * 2;
+	    replantableCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReplantable * 2;
+	    rentedCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceRented * 2;
+	    artificialCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceArtificial * 2;
 	}
 
 	// === DIAGNOSTIC DEBUG LOG ===
