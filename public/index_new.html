@@ -371,16 +371,16 @@
             <p>Tree height is the foundation of our carbon math. For artificial trees, every extra foot means significantly more plastic and metal was manufactured and shipped, drastically increasing its carbon cost. For real trees, height tells us exactly how many years the tree spent actively absorbing carbon on the farm, as well as how much heavy wood you have to transport and dispose of.</p>
         </details>
 
-        <button onclick="recordAnswer(1)">1 Foot</button>
-        <button onclick="recordAnswer(2)">2 Feet</button>
-        <button onclick="recordAnswer(3)">3 Feet</button>
-        <button onclick="recordAnswer(4)">4 Feet</button>
-        <button onclick="recordAnswer(5)">5 Feet</button>
-        <button onclick="recordAnswer(6)">6 Feet</button>
-        <button onclick="recordAnswer(7)">7 Feet</button>
-        <button onclick="recordAnswer(8)">8 Feet</button>
-        <button onclick="recordAnswer(9)">9 Feet</button>
-        <button onclick="recordAnswer(10)">10 Feet</button>
+        <button onclick="recordAnswer('height', 1)">1 Foot</button>
+        <button onclick="recordAnswer('height', 2)">2 Feet</button>
+        <button onclick="recordAnswer('height', 3)">3 Feet</button>
+        <button onclick="recordAnswer('height', 4)">4 Feet</button>
+        <button onclick="recordAnswer('height', 5)">5 Feet</button>
+        <button onclick="recordAnswer('height', 6)">6 Feet</button>
+        <button onclick="recordAnswer('height', 7)">7 Feet</button>
+        <button onclick="recordAnswer('height', 8)">8 Feet</button>
+        <button onclick="recordAnswer('height', 9)">9 Feet</button>
+        <button onclick="recordAnswer('height', 10)">10 Feet</button>
     </div>
 
     <!-- Question 2 -->
@@ -477,9 +477,9 @@
             <summary>Why this question?</summary>
             <p>How you dispose of a cut tree is an important factor in its total carbon footprint. If a tree ends up buried in a landfill, it decomposes without oxygen and releases methane as well as carbon dioxide. On the other hand, having the tree chipped into mulch or composted allows it to break down naturally and safely, keeping its carbon footprint incredibly low.</p>
         </details>
-        <button onclick="recordAnswer(1)">Landfill</button>
-        <button onclick="recordAnswer(2)">Chipped</button>
-        <button onclick="recordAnswer(3)">Burned</button>
+        <button onclick="recordAnswer('disposal', 1)">Landfill</button>
+        <button onclick="recordAnswer('disposal', 2)">Chipped</button>
+        <button onclick="recordAnswer('disposal', 3)">Burned</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -490,8 +490,8 @@
             <summary>Why this question?</summary>
             <p>"Christmas Tree Syndrome" is a very real thing! While actual tree pollen is rare in the winter, real trees carry dust, strong pine sap, and naturally occurring mold spores on their branches.</p>
         </details>
-        <button onclick="recordAnswer(1)">Yes</button>
-        <button onclick="recordAnswer(2)">No</button>
+        <button onclick="recordAnswer('allergies', 1)">Yes</button>
+        <button onclick="recordAnswer('allergies', 2)">No</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -502,8 +502,8 @@
             <summary>Why this question?</summary>
             <p>Living trees must stay in massive pots to protect their root systems. This pot adds about 2 feet of extra height to the plant.</p>
         </details>
-        <button onclick="recordAnswer(1)">Yes</button>
-        <button onclick="recordAnswer(2)">No</button>
+        <button onclick="recordAnswer('ceiling', 1)">Yes</button>
+        <button onclick="recordAnswer('ceiling', 2)">No</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -514,9 +514,9 @@
             <summary>Why this question?</summary>
             <p>Potted, replantable trees can only survive in a warm house for about 7 to 10 days, while professional rental trees max out at 3 to 4 weeks. If they stay inside longer, the heat tricks them into thinking it’s spring.</p>
         </details>
-        <button onclick="recordAnswer(1)">Within 10 days</button>
-        <button onclick="recordAnswer(2)">More than 10 days but no more than 4 weeks</button>
-        <button onclick="recordAnswer(3)">More than 4 weeks</button>
+        <button onclick="recordAnswer('daysKept', 1)">Within 10 days</button>
+        <button onclick="recordAnswer('daysKept', 2)">More than 10 days but no more than 4 weeks</button>
+        <button onclick="recordAnswer('daysKept', 3)">More than 4 weeks</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -527,8 +527,8 @@
             <summary>Why this question?</summary>
             <p>Replantable trees need a permanent home to survive and continue pulling carbon out of the air.</p>
         </details>
-        <button onclick="recordAnswer(1)">Yes</button>
-        <button onclick="recordAnswer(2)">No</button>
+        <button onclick="recordAnswer('plantSpace', 1)">Yes</button>
+        <button onclick="recordAnswer('plantSpace', 2)">No</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -539,8 +539,8 @@
             <summary>Why this question?</summary>
             <p>The root ball of a standard tree can easily weigh over 100 pounds! It also requires a lot of manual labor and pre-planning.</p>
         </details>
-        <button onclick="recordAnswer(1)">Yes</button>
-        <button onclick="recordAnswer(2)">No</button>
+        <button onclick="recordAnswer('willReplant', 1)">Yes</button>
+        <button onclick="recordAnswer('willReplant', 2)">No</button>
         <br><br><button onclick="goBack()" style="background-color: #94a3b8; width: 50%;">← Back</button>
     </div>
 
@@ -581,7 +581,7 @@
     // --- Global State Engine ---
     let currentStep = 1;
     const totalSteps = 10; 
-    let userAnswers = []; 
+    let userAnswers = {}; 
     let VehicleData = null;
     
     // Dynamic Calculated Driving Rates (kg CO2e per single mile)
@@ -613,7 +613,9 @@
             return;
         }
         
-        userAnswers.push(dReal, dRented, dArt);
+ 	userAnswers.distReal = dReal;
+        userAnswers.distRented = dRented;
+        userAnswers.distArtificial = dArt;
         
         document.getElementById(`step-${currentStep}`).classList.remove('active');
         currentStep++;
@@ -768,7 +770,7 @@
         const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
         const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 
-        userAnswers.push(VehicleData.id); // Save vehicle ID tracking index 4
+        userAnswers.vehicleId = VehicleData.id; // Save vehicle ID
 
         document.getElementById(`step-3`).classList.remove('active');
 
@@ -782,7 +784,6 @@
             dynamicReplantableMileRate = kgPerMile;
             dynamicRentedMileRate = kgPerMile * 2; // Rented gets double trips
 
-            userAnswers.push(0, ""); // Dummy filler elements for Step 4 indices
             currentStep = 5; // Jump straight past Question 4
             document.getElementById(`step-5`).classList.add('active');
             updateProgress();
@@ -898,7 +899,8 @@
             dynamicRentedMileRate = EvKgPerMile * 2;
         }
 
-        userAnswers.push(evDist, zip); // Store answers
+        userAnswers.evDist = evDist;
+	userAnswers.zip = zip;
 
         document.getElementById(`step-4`).classList.remove('active');
         currentStep = 5;
@@ -907,17 +909,18 @@
     }
 
     // --- Standard Quiz Record Operations ---
-    function recordAnswer(points) {
-        userAnswers.push(points);
+    function recordAnswer(key, value) {
+        userAnswers[key] = value; // Save answer by its specific name
+
         document.getElementById(`step-${currentStep}`).classList.remove('active');
         currentStep++;
         
         // Logical flow safety bypass rules map
         if (currentStep > totalSteps ||
-            currentStep == 7 && userAnswers[7] == 1 ||  // Allergies
-            currentStep == 8 && userAnswers[8] == 2 ||  // Ceiling height 
-            currentStep == 9 && (userAnswers[9] == 2 || userAnswers[9] == 3) ||  // Days limits
-            currentStep == 10 && userAnswers[10] == 2) { // Planting limits
+            currentStep == 7 && userAnswers.allergies == 1 ||  // Allergies
+            currentStep == 8 && userAnswers.ceiling == 2 ||  // Ceiling height 
+            currentStep == 9 && (userAnswers.daysKept == 2 || userAnswers.daysKept == 3) ||  // Days limits
+            currentStep == 10 && userAnswers.plantSpace == 2) { // Planting limits
             
             document.getElementById('results').classList.add('active');
             document.getElementById('progress-container').style.display = 'none';
@@ -938,32 +941,12 @@
         if (currentStep === 5) {
             const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
             const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
-            
-            if (!isPureEV && !isPHEV) {
-                // GAS CAR: They skipped Step 4. Go back to Step 3 and remove the 3 items pushed there (carId + 2 dummies)
-                userAnswers.pop(); // Remove dummy zip
-                userAnswers.pop(); // Remove dummy EV distance
-                userAnswers.pop(); // Remove vehicle ID
-                currentStep = 3; 
-            } else {
-                // EV / PHEV: They just came from Step 4. Go back to Step 4 and remove the 2 items pushed there
-                userAnswers.pop(); // Remove ZIP code
-                userAnswers.pop(); // Remove EV distance
-                currentStep = 4;
-            }
+	    currentStep = (!isPureEV && !isPHEV) ? 3 : 4;
         } else if (currentStep === 4) {
-            // If they are on Step 4 and click back, they are going back to Step 3
-            userAnswers.pop(); // Remove vehicle ID
             currentStep = 3;
         } else if (currentStep === 3) {
-            // If they are on Step 3, they are going back to the three distance inputs
-            userAnswers.pop(); // Remove Artificial distance
-            userAnswers.pop(); // Remove Rented distance
-            userAnswers.pop(); // Remove Real distance
             currentStep = 2;
         } else {
-            // Standard one-step backward movement for the rest of the quiz
-            userAnswers.pop();
             currentStep--;
         }
 
@@ -1070,14 +1053,12 @@
         const CO2DisposalRealBurnedPerHeight = [0, 0.0, 0.1, 0.4, 0.8, 1.4, 2.3, 3.5, 5.0, 6.8, 9.0];
 
         // Capture parsed operational array entries safely
-        const height = userAnswers[0];
-        const distanceReal = userAnswers[1];
-        const distanceReplantable = userAnswers[1];
-        const distanceRented = userAnswers[2];
-        const distanceArtificial = userAnswers[3];
-        
-        // Note: Vehicle tracking data entries occupy userAnswers[4, 5, 6]
-        const disposalMethod = userAnswers[7];
+	const height = userAnswers.height;
+        const distanceReal = userAnswers.distReal;
+        const distanceReplantable = userAnswers.distReal;
+        const distanceRented = userAnswers.distRented;
+        const distanceArtificial = userAnswers.distArtificial;
+        const disposalMethod = userAnswers.disposal;
 
         // Fixed baseline constants setup
         const realCarbonFootprintFixed = 0;
@@ -1167,13 +1148,13 @@
             let nCF = rentedCarbonFootprint[i];
             let aCF = artificialCarbonFootprint[i];
 
-            if (userAnswers[8] == 1) { // Allergies index tracking 8
+            if (userAnswers.allergies == 1) { // Allergies index tracking 8
                 rCF = maxCO2e; pCF = maxCO2e; nCF = maxCO2e;
             }
-            if (userAnswers[9] == 2 || userAnswers[10] == 3) { // Ceiling or Keep times limits
+            if (userAnswers.ceiling == 2 || userAnswers.daysKept == 3) { // Ceiling or Keep times limits
                 pCF = maxCO2e; nCF = maxCO2e;
             }
-            if (userAnswers[10] == 2 || userAnswers[11] == 2 || userAnswers[12] == 2) { 
+            if (userAnswers.daysKept == 2 || userAnswers.plantSpace == 2 || userAnswers.willReplant == 2) { 
                 pCF = maxCO2e;
             }
 
