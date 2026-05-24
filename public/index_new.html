@@ -691,6 +691,9 @@
             return;
         }
 
+        isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
+        isPHEV = VehicleData.atvType === "Plug-in Hybrid";
+
         if (!isPureEV && !isPHEV) {
             const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
             gasCO2eKgPerMile = co2Gpm / 1000;
