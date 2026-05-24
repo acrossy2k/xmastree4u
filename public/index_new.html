@@ -1079,7 +1079,7 @@
         const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + artificialCO2eKgTransportation * 2;  // round trip
 
         // Per-year CO2eKg
-        Const realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + realCO2eKgTransportation * 2 + realCO2eKgDisposal;  // round trip       
+        const realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + realCO2eKgTransportation * 2 + realCO2eKgDisposal;  // round trip       
         const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + replantableCO2eKgTransportation * 2;
         const rentedCarbonFootprintPerYear = rentedCO2eKgTransportation * 4;  // two round trips
         const artificialCarbonFootprintPerYear = 0;
