@@ -813,8 +813,17 @@
             btn.disabled = true;
 
             const isPHEV = currentVehicleData.atvType === "Plug-in Hybrid";
-            const kwhPer100 = parseFloat(isPHEV ? (currentVehicleData.phevCombE || currentVehicleData.combE || 30) : (currentVehicleData.combE || 30));
-            const kwhPerSingleMile = kwhPer100 / 100;
+
+	    let kwhPerSingleMile;
+            if (isPHEV && currentVehicleData.phevComb) {
+                // PHEVs use MPGe. We convert MPGe directly to "kWh per mile" using the EPA 33.7 constant
+                const phevMpge = parseFloat(currentVehicleData.phevComb) || 60; // 60 MPGe safe fallback
+                kwhPerSingleMile = 33.7 / phevMpge;
+            } else {
+                // Pure EVs use combE, which is already safely measured in kWh per 100 miles
+                const kwhPer100 = parseFloat(currentVehicleData.combE || 30);
+                kwhPerSingleMile = kwhPer100 / 100;
+            }
 
             const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
             if (gridAssessment && gridAssessment.co2e) {
