@@ -834,15 +834,15 @@
             }
 
             if (isPHEV) {
-                const gasMpg = parseFloat(currentVehicleData.comb08 || 25);
-                currentGasKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
+                const gasMpg = parseFloat(VehicleData.comb08 || 25);
+                GasKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
 
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== PHEV MATH DEBUG ===");
                 console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
                 console.log("Grid kg/kWh rate:", EvKgPerMile / kwhPerSingleMile);
-                console.log("co2Gpm:", co2Gpm);
+                console.log("gasMpg:", gasMpg);
                 console.log("EV kg/mile:", EvKgPerMile);
                 console.log("Gas kg/mile:", GasKgPerMile);
                 console.log("Full EPA Data Object:", VehicleData);
