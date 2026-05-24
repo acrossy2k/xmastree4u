@@ -585,12 +585,12 @@
     let VehicleData = null;
 
     // Save live EV math
-    let EvCO2eKgPerMile = 0;
-    let GasCO2eKgPerMile = 0;
+    let evCO2eKgPerMile = 0;
+    let gasCO2eKgPerMile = 0;
 
     let isPureEV;
     let isPHEV;
-    let PhevEvDist = 0;
+    let phevEvDist = 0;
 
     function startQuiz() {
         document.getElementById('intro-step').classList.remove('active');
@@ -693,8 +693,8 @@
 
         if (!isPureEV && !isPHEV) {
             const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
-            const GasCO2eKgPerMile = co2Gpm / 1000;
-            previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${GasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
+            gasCO2eKgPerMile = co2Gpm / 1000;
+            previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${gasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
             previewDiv.style.display = 'block';
         } else {
 	    previewDiv.innerHTML = `More information is needed for electric and plug-in hybrid vehicles.`;
@@ -771,7 +771,7 @@
         if (!isPureEV && !isPHEV) {
             // Standard Gasoline/Diesel Car Math
             const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
-            const GasCO2eKgPerMile = co2Gpm / 1000;
+            gasCO2eKgPerMile = co2Gpm / 1000;
 
             currentStep = 5; // Jump straight past Question 4
             document.getElementById(`step-5`).classList.add('active');
@@ -818,44 +818,44 @@
             const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
             if (gridAssessment && gridAssessment.co2e) {
                 const kgPerKwh = gridAssessment.co2e / 10;
-                EvCO2eKgPerMile = kwhPerSingleMile * kgPerKwh;
+                evCO2eKgPerMile = kwhPerSingleMile * kgPerKwh;
             } else {
-                EvCO2eKgPerMile = kwhPerSingleMile * 0.39; // Fallback
+                evCO2eKgPerMile = kwhPerSingleMile * 0.39; // Fallback
             }
 
             if (isPHEV) {
                 const gasMpg = parseFloat(VehicleData.comb08 || 25);
-                GasCO2eKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
+                gasCO2eKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
 
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== PHEV MATH DEBUG ===");
                 console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", EvCO2eKgPerMile / kwhPerSingleMile);
+                console.log("Grid kg/kWh rate:", evCO2eKgPerMile / kwhPerSingleMile);
                 console.log("gasMpg:", gasMpg);
-                console.log("EV kg/mile:", EvCO2eKgPerMile);
-                console.log("Gas kg/mile:", GasCO2eKgPerMile);
+                console.log("EV kg/mile:", evCO2eKgPerMile);
+                console.log("Gas kg/mile:", gasCO2eKgPerMile);
                 console.log("Full EPA Data Object:", VehicleData);
                 console.warn("=======================");
 
                 previewDiv.innerHTML = `
-                    <strong>Estimated EV Mode:</strong> ${EvCO2eKgPerMile.toFixed(3)} kg CO₂e per mile<br>
-                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${GasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile
+                    <strong>Estimated EV Mode:</strong> ${evCO2eKgPerMile.toFixed(3)} kg CO₂e per mile<br>
+                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${gasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile
                 `;
             } else {
-		GasCO2eKgPerMile = 0;
-		PhevEvDist = 0;
+		gasCO2eKgPerMile = 0;
+		phevEvDist = 0;
 
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== EV MATH DEBUG ===");
                 console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", EvCO2eKgPerMile / kwhPerSingleMile);
-                console.log("EV kg/mile:", EvCO2eKgPerMile);
+                console.log("Grid kg/kWh rate:", evCO2eKgPerMile / kwhPerSingleMile);
+                console.log("EV kg/mile:", evCO2eKgPerMile);
                 console.log("Full EPA Data Object:", VehicleData);
                 console.warn("=======================");
 
-                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${EvCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
+                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${evCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
             }
             
             btn.disabled = false;
@@ -872,7 +872,7 @@
     async function processElectricVehicleDetails() {
         const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
         const zip = document.getElementById('zip').value.trim();
-        PhevEvDist = parseFloat(document.getElementById('distance-ev').value) || 0;
+        phevEvDist = parseFloat(document.getElementById('distance-ev').value) || 0;
 
         document.getElementById(`step-4`).classList.remove('active');
         currentStep = 5;
@@ -915,14 +915,14 @@
         
         // 2. Check for our structural jumps
         if (currentStep === 5) {
-	    GasCO2eKgPerMile = 0;
-            EvCO2eKgPerMile = 0;
-	    PhevEvDist = 0;
+	    gasCO2eKgPerMile = 0;
+            evCO2eKgPerMile = 0;
+	    phevEvDist = 0;
 	    currentStep = (!isPureEV && !isPHEV) ? 3 : 4;
         } else if (currentStep === 4) {
-	    GasCO2eKgPerMile = 0;
-            EvCO2eKgPerMile = 0;
-	    PhevEvDist = 0;
+	    gasCO2eKgPerMile = 0;
+            evCO2eKgPerMile = 0;
+	    phevEvDist = 0;
             currentStep = 3;
         } else if (currentStep === 3) {
             currentStep = 2;
@@ -1046,26 +1046,26 @@
 	let rentedCO2eKgTransportation;
 	let artificialCO2eKgTransportation;
 
-	if (PhevEvDist == 0) {
-	    if (GasCO2eKgPerMile > 0 && EvCO2eKgPerMile > 0) {
+	if (phevEvDist == 0) {
+	    if (gasCO2eKgPerMile > 0 && evCO2eKgPerMile > 0) {
 		console.error('Both Gas and Ev CO2e Kg/mile is positive for non-phew.');
 	    }
-	    realCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceReal;
-	    replantableCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceReplantable;
-	    rentedCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceRented;
-	    artificialCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceArtificial;
+	    realCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReal;
+	    replantableCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReplantable;
+	    rentedCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceRented;
+	    artificialCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceArtificial;
 	} else {
-	    realCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceReal, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceReal, PhevEvDist));
-	    replantableCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceReplantable, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceReplantable, PhevEvDist));
-	    rentedCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceRented, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceRented, PhevEvDist));
-	    artificialCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceArtificial, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceArtificial, PhevEvDist));
+	    realCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReal, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReal, phevEvDist));
+	    replantableCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReplantable, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReplantable, phevEvDist));
+	    rentedCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceRented, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceRented, phevEvDist));
+	    artificialCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceArtificial, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceArtificial, phevEvDist));
 	}
 
 	// === DIAGNOSTIC DEBUG LOG ===
         console.warn("=== Transportation Emissions MATH DEBUG ===");
-        console.log("GasCO2eKgPerMile:", GasCO2eKgPerMile);
-        console.log("EvCO2eKgPerMile:", EvCO2eKgPerMile);
-        console.log("PhevEvDist:", PhevEvDist);
+        console.log("gasCO2eKgPerMile:", gasCO2eKgPerMile);
+        console.log("evCO2eKgPerMile:", evCO2eKgPerMile);
+        console.log("phevEvDist:", phevEvDist);
         console.log("realCO2eKgTransportation:", realCO2eKgTransportation);
         console.log("replantableCO2eKgTransportation:", replantableCO2eKgTransportation);
         console.log("rentedCO2eKgTransportation:", rentedCO2eKgTransportation);
