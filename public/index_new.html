@@ -912,6 +912,10 @@
     function recordAnswer(key, value) {
         userAnswers[key] = value; // Save answer by its specific name
 
+	if (key === 'height') {
+            document.getElementById('tree-height-plus-two-placeholder').innerText = (value + 2).toString();
+        }
+
         document.getElementById(`step-${currentStep}`).classList.remove('active');
         currentStep++;
         
@@ -943,6 +947,8 @@
             const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 	    currentStep = (!isPureEV && !isPHEV) ? 3 : 4;
         } else if (currentStep === 4) {
+	    delete userAnswers.evDist;
+            delete userAnswers.zip;
             currentStep = 3;
         } else if (currentStep === 3) {
             currentStep = 2;
