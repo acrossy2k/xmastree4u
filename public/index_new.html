@@ -841,7 +841,7 @@
                 console.warn("=== PHEV MATH DEBUG ===");
                 console.log("Vehicle:", currentVehicleData.make, currentVehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", currentEvKgPerMile / (kwhPer100 / 100));
+                console.log("Grid kg/kWh rate:", currentEvKgPerMile / kwhPerSingleMile);
                 console.log("EPA gasMpg (comb08):", gasMpg);
                 console.log("FINAL EV kg/mile:", currentEvKgPerMile);
                 console.log("FINAL Gas kg/mile:", currentGasKgPerMile);
