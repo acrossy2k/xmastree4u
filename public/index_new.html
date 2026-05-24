@@ -583,15 +583,11 @@
     const totalSteps = 10; 
     let userAnswers = {}; 
     let VehicleData = null;
-    
-    // Dynamic Calculated Driving Rates (kg CO2e per single mile)
-    let dynamicRealMileRate = 1.08; 
-    let dynamicRentedMileRate = 2.16;
-    let dynamicReplantableMileRate = 1.08;
 
     // Save live EV math
-    let EvKgPerMile = 0;
-    let GasKgPerMile = 0;
+    let EvCO2eKgPerMile = 0;
+    let GasCO2eKgPerMile = 0;
+    let PhevEvDist = 0;
 
     function startQuiz() {
         document.getElementById('intro-step').classList.remove('active');
@@ -697,8 +693,8 @@
 
         if (!isPureEV && !isPHEV) {
             const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
-            const GaskgPerMile = co2Gpm / 1000;
-            previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${GaskgPerMile.toFixed(3)} kg CO₂e per mile`;
+            const GasCO2eKgPerMile = co2Gpm / 1000;
+            previewDiv.innerHTML = `<strong>Estimated Tailpipe Emissions:</strong><br>${GasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
             previewDiv.style.display = 'block';
         } else {
 	    previewDiv.innerHTML = `More information is needed for electric and plug-in hybrid vehicles.`;
@@ -775,7 +771,7 @@
         if (!isPureEV && !isPHEV) {
             // Standard Gasoline/Diesel Car Math
             const co2Gpm = parseFloat(VehicleData.co2TailpipeGpm);
-            const GaskgPerMile = co2Gpm / 1000;
+            const GasCO2eKgPerMile = co2Gpm / 1000;
 
             currentStep = 5; // Jump straight past Question 4
             document.getElementById(`step-5`).classList.add('active');
@@ -822,42 +818,43 @@
             const gridAssessment = await fetchClimatiqGridEmissions(zip, 10);
             if (gridAssessment && gridAssessment.co2e) {
                 const kgPerKwh = gridAssessment.co2e / 10;
-                EvKgPerMile = kwhPerSingleMile * kgPerKwh;
+                EvCO2eKgPerMile = kwhPerSingleMile * kgPerKwh;
             } else {
-                EvKgPerMile = kwhPerSingleMile * 0.39; // Fallback
+                EvCO2eKgPerMile = kwhPerSingleMile * 0.39; // Fallback
             }
 
             if (isPHEV) {
                 const gasMpg = parseFloat(VehicleData.comb08 || 25);
-                GasKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
+                GasCO2eKgPerMile = 8.887 / gasMpg;   // 8.887 is the exact amount of carbon dioxide in kilograms produced by burning exactly one gallon of standard unleaded gasoline. The number 8.887 comes directly from the U.S. Environmental Protection Agency (EPA).
 
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== PHEV MATH DEBUG ===");
                 console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", EvKgPerMile / kwhPerSingleMile);
+                console.log("Grid kg/kWh rate:", EvCO2eKgPerMile / kwhPerSingleMile);
                 console.log("gasMpg:", gasMpg);
-                console.log("EV kg/mile:", EvKgPerMile);
-                console.log("Gas kg/mile:", GasKgPerMile);
+                console.log("EV kg/mile:", EvCO2eKgPerMile);
+                console.log("Gas kg/mile:", GasCO2eKgPerMile);
                 console.log("Full EPA Data Object:", VehicleData);
                 console.warn("=======================");
 
                 previewDiv.innerHTML = `
-                    <strong>Estimated EV Mode:</strong> ${EvKgPerMile.toFixed(3)} kg CO₂e per mile<br>
-                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${GasKgPerMile.toFixed(3)} kg CO₂e per mile
+                    <strong>Estimated EV Mode:</strong> ${EvCO2eKgPerMile.toFixed(3)} kg CO₂e per mile<br>
+                    <strong style="display:inline-block; margin-top:4px;">Estimated Gas Mode:</strong> ${GasCO2eKgPerMile.toFixed(3)} kg CO₂e per mile
                 `;
             } else {
-		GasKgPerMile = 0;
+		GasCO2eKgPerMile = 0;
+		PhevEvDist = 0;
 		// === DIAGNOSTIC DEBUG LOG ===
                 console.warn("=== EV MATH DEBUG ===");
                 console.log("Vehicle:", VehicleData.make, VehicleData.model);
                 console.log("EPA kwhPerSingleMile:", kwhPerSingleMile);
-                console.log("Grid kg/kWh rate:", EvKgPerMile / kwhPerSingleMile);
-                console.log("EV kg/mile:", EvKgPerMile);
+                console.log("Grid kg/kWh rate:", EvCO2eKgPerMile / kwhPerSingleMile);
+                console.log("EV kg/mile:", EvCO2eKgPerMile);
                 console.log("Full EPA Data Object:", VehicleData);
                 console.warn("=======================");
 
-                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${EvKgPerMile.toFixed(3)} kg CO₂e per mile`;
+                previewDiv.innerHTML = `<strong>Estimated Grid Emissions:</strong><br>${EvCO2eKgPerMile.toFixed(3)} kg CO₂e per mile`;
             }
             
             btn.disabled = false;
@@ -874,24 +871,7 @@
     async function processElectricVehicleDetails() {
         const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
         const zip = document.getElementById('zip').value.trim();
-        let evDist = parseFloat(document.getElementById('distance-ev').value) || 0;
-        
-        const totalDistanceQuery = userAnswers[1]; // Real distance chosen
-
-        if (isPHEV) {
-            if (evDist > totalDistanceQuery) evDist = totalDistanceQuery;
-            const gasDist = totalDistanceQuery - evDist;
-
-            // We use the live math that was saved in the global variables!
-            const totalTripKg = (evDist * EvKgPerMile) + (gasDist * GasKgPerMile);
-            dynamicRealMileRate = totalTripKg / totalDistanceQuery;
-            dynamicReplantableMileRate = dynamicRealMileRate;
-            dynamicRentedMileRate = dynamicRealMileRate * 2; 
-        } else {
-            dynamicRealMileRate = EvKgPerMile;
-            dynamicReplantableMileRate = EvKgPerMile;
-            dynamicRentedMileRate = EvKgPerMile * 2;
-        }
+        PhevEvDist = parseFloat(document.getElementById('distance-ev').value) || 0;
 
         document.getElementById(`step-4`).classList.remove('active');
         currentStep = 5;
@@ -934,14 +914,16 @@
         
         // 2. Check for our structural jumps
         if (currentStep === 5) {
-	    GaskgPerMile = 0;
-            EvkgPerMile = 0;
+	    GasCO2eKgPerMile = 0;
+            EvCO2eKgPerMile = 0;
+	    PhevEvDist = 0;
             const isPureEV = VehicleData.co2TailpipeGpm === "0.0" && VehicleData.fuelType1.includes("Electricity");
             const isPHEV = VehicleData.atvType === "Plug-in Hybrid";
 	    currentStep = (!isPureEV && !isPHEV) ? 3 : 4;
         } else if (currentStep === 4) {
-	    GaskgPerMile = 0;
-            EvkgPerMile = 0;
+	    GasCO2eKgPerMile = 0;
+            EvCO2eKgPerMile = 0;
+	    PhevEvDist = 0;
             currentStep = 3;
         } else if (currentStep === 3) {
             currentStep = 2;
@@ -1059,25 +1041,47 @@
         const distanceArtificial = userAnswers.distArtificial;
         const disposalMethod = userAnswers.disposal;
 
-        // Fixed baseline constants setup
+	// Compute emissions due to transpotation
+	let realCO2eKgTransportation;
+	let replantableCO2eKgTransportation;
+	let rentedCO2eKgTransportation;
+	let artificialCO2eKgTransportation;
+
+	if (PhevEvDist == 0) {
+	    if (GasCO2eKgPerMile > 0 && EvCO2eKgPerMile > 0) {
+		console.error('Both Gas and Ev CO2e Kg/mile is positive for non-phew.');
+	    }
+	    realCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceReal;
+	    replantableCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceReplantable;
+	    rentedCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceRented;
+	    artificialCO2eKgTransportation = (GasCO2eKgPerMile + EvCO2eKgPerMile) * distanceArtificial;
+	} else {
+	    realCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceReal, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceReal, PhevEvDist));
+	    replantableCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceReplantable, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceReplantable, PhevEvDist));
+	    rentedCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceRented, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceRented, PhevEvDist));
+	    artificialCO2eKgTransportation = EvCO2eKgPerMile * Math.min(distanceArtificial, PhevEvDist) + GasCO2eKgPerMile * (distanceReal - Math.min(distanceArtificial, PhevEvDist));
+	}
+
+	// Compute emissions due to disposal        
+	let realCO2eKgDisposal;
+        if (disposalMethod == 1) {  
+            realCO2eKgDisposal = CO2DisposalRealLandfillPerHeight[height];
+        } else if (disposalMethod == 2) {  
+            realCO2eKgDisposal = CO2DisposalRealChippedPerHeight[height];
+        } else { 
+            realCO2eKgDisposal = CO2DisposalRealBurnedPerHeight[height];
+        }
+
+        // One-time CO2eKg
         const realCarbonFootprintFixed = 0;
         const replantableCarbonFootprintFixed = 0;
         const rentedCarbonFootprintFixed = CO2ProductionLivingPerHeight[height];
-        const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + CO2TransporationArtificialPerMile * distanceArtificial;
+        const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + artificialCO2eKgTransportation * 2;  // round trip
 
-        // Apply dynamically isolated custom fuel rates calculated inside Steps 3 & 4
-        let realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + dynamicRealMileRate * distanceReal;
-        
-        if (disposalMethod == 1) {  
-            realCarbonFootprintPerYear += CO2DisposalRealLandfillPerHeight[height];
-        } else if (disposalMethod == 2) {  
-            realCarbonFootprintPerYear += CO2DisposalRealChippedPerHeight[height];
-        } else { 
-            realCarbonFootprintPerYear += CO2DisposalRealBurnedPerHeight[height];
-        }
-        
-        const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + dynamicReplantableMileRate * distanceReplantable;
-        const rentedCarbonFootprintPerYear = dynamicRentedMileRate * distanceRented;
+        // Per-year CO2eKg
+        Const realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + realCO2eKgTransportation * 2 + realCO2eKgDisposal;  // round trip       
+        const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + replantableCO2eKgTransportation * 2;
+        const rentedCarbonFootprintPerYear = rentedCO2eKgTransportation * 4;  // two round trips
         const artificialCarbonFootprintPerYear = 0;
 
         const num_years = 8;
@@ -1200,8 +1204,23 @@
         htmlString += `</ul>`;
 
         let rationales = [];
-        if (userAnswers[8] == 1) rationales.push("Living options were omitted over allergy metrics.");
-        else if (userAnswers[9] == 2) rationales.push("Potted selections dropped due to low interior spacing limits.");
+	if (userAnswers.allergies == 1) {
+            rationales.push("Living options (Real, Replantable, Rented) were omitted due to allergy metrics.");
+        }
+        if (userAnswers.ceiling == 2) {
+            rationales.push("Potted selections (Replantable, Rented) were dropped due to interior ceiling height limits.");
+        }
+        if (userAnswers.daysKept == 2) {
+            rationales.push("Replantable trees were excluded because their root systems can only survive indoors for about 10 days.");
+        } else if (userAnswers.daysKept == 3) {
+            rationales.push("Living potted trees (Replantable, Rented) were omitted because they cannot survive indoors for more than 4 weeks.");
+        }
+        if (userAnswers.plantSpace == 2) {
+            rationales.push("Replantable trees were removed since they require a permanent outdoor home after the holidays.");
+        }
+        if (userAnswers.willReplant == 2) {
+            rationales.push("Replantable trees were excluded to avoid the heavy lifting and manual labor of planting a root ball.");
+        }
         
         if (rationales.length > 0) {
             htmlString += `<hr class="results-divider"><h4 class="timeline-title">Why some choices were skipped:</h4>`;
