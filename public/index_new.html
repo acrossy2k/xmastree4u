@@ -388,7 +388,7 @@
         <h2>Question 2: How many miles away are these locations?</h2>
         <details class="why-box">
             <summary>Why this question?</summary>
-            <p>Transportation is the hidden carbon cost of a tree. Driving a gas-powered vehicle long distances can actually produce more emissions than the tree itself absorbed while growing!</p>
+            <p>Transportation is the hidden carbon cost of a tree. Driving a gas-powered vehicle long distances can actually produce more emissions than the tree itself absorbed while growing. Note that rented trees require two trips—one to pick it up, and one to return it after the holidays.</p>
         </details>
 
         <div style="text-align: left; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
@@ -561,7 +561,7 @@
                     <li><strong>Disposal Cost:</strong> We assume Replantable and Rented do not die and there is no disposal cost.</li>
                     <li><strong>Post-Holiday Carbon Savings:</strong> We do not count the continued CO<sub>2</sub>e savings after a living tree is permanently replanted or returned to the farm.</li>
                     <li><strong>No Replanting Reuse:</strong> We assume that once a replantable tree is permanently planted in the ground, it is not dug up and reused as an indoor Christmas tree in subsequent years.</li>
-                    <li><strong>Vehicles & Transport:</strong> Personal driving emissions are calculated dynamically based on your chosen EPA vehicle model profile. Shipped or professionally delivered trees assume route-optimized trucks, dropping the cost to half.</li>
+                    <li><strong>Vehicles & Transport:</strong> Personal driving emissions are calculated dynamically based on your chosen EPA vehicle model profile.</li>
                     <li><strong>Root Ball Height:</strong> We assume the root ball or massive pot required for living (replantable or rented) trees adds approximately 2 feet to the total standing height of the tree indoors.</li>
                     <li><strong>The Power of Scale:</strong> Trees scale non-linearly. Living trees (Fraser fir) scale their biomass by a power of 2.638, meaning taller trees carry exponentially heavier carbon weights. We used the scale factor 2.7 for artificial trees.</li>
                 </ul>
@@ -1046,19 +1046,16 @@
 	let rentedCO2eKgTransportation;
 	let artificialCO2eKgTransportation;
 
-	if (phevEvDist == 0) {
-	    if (gasCO2eKgPerMile > 0 && evCO2eKgPerMile > 0) {
-		console.error('Both Gas and Ev CO2e Kg/mile is positive for non-phew.');
-	    }
-	    realCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReal;
-	    replantableCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReplantable;
-	    rentedCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceRented;
-	    artificialCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceArtificial;
+	if (isPHEV) {
+	    realCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReal * 2;
+	    replantableCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceReplantable * 2;
+	    rentedCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceRented * 2;
+	    artificialCO2eKgTransportation = (gasCO2eKgPerMile + evCO2eKgPerMile) * distanceArtificial * 2;
 	} else {
-	    realCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReal, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReal, phevEvDist));
-	    replantableCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReplantable, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReplantable, phevEvDist));
-	    rentedCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceRented, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceRented, phevEvDist));
-	    artificialCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceArtificial, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceArtificial, phevEvDist));
+	    realCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReal * 2, phevEvDist) + gasCO2eKgPerMile * (distanceReal - Math.min(distanceReal * 2, phevEvDist));
+	    replantableCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceReplantable * 2, phevEvDist) + gasCO2eKgPerMile * (distanceReplantable - Math.min(distanceReplantable * 2, phevEvDist));
+	    rentedCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceRented * 2, phevEvDist) + gasCO2eKgPerMile * (distanceRented - Math.min(distanceRented * 2, phevEvDist));
+	    artificialCO2eKgTransportation = evCO2eKgPerMile * Math.min(distanceArtificial * 2, phevEvDist) + gasCO2eKgPerMile * (distanceArtificial - Math.min(distanceArtificial * 2, phevEvDist));
 	}
 
 	// === DIAGNOSTIC DEBUG LOG ===
@@ -1086,12 +1083,12 @@
         const realCarbonFootprintFixed = 0;
         const replantableCarbonFootprintFixed = 0;
         const rentedCarbonFootprintFixed = CO2ProductionLivingPerHeight[height];
-        const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + artificialCO2eKgTransportation * 2;  // round trip
+        const artificialCarbonFootprintFixed = CO2ProductionArtificialPerHeight[height] + artificialCO2eKgTransportation;  // round trip
 
         // Per-year CO2eKg
-        const realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + realCO2eKgTransportation * 2 + realCO2eKgDisposal;  // round trip       
-        const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + replantableCO2eKgTransportation * 2;
-        const rentedCarbonFootprintPerYear = rentedCO2eKgTransportation * 4;  // two round trips
+        const realCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + realCO2eKgTransportation + realCO2eKgDisposal;  // round trip       
+        const replantableCarbonFootprintPerYear = CO2ProductionLivingPerHeight[height] + replantableCO2eKgTransportation;
+        const rentedCarbonFootprintPerYear = rentedCO2eKgTransportation * 2;  // two round trips
         const artificialCarbonFootprintPerYear = 0;
 
         const num_years = 8;
