@@ -6,8 +6,6 @@ app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 
-app.use('/begin', express.static('begin'));
-
 app.get('/api/epa/*', async (req, res) => {
     try {
         const endpointPath = req.params[0];
