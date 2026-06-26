@@ -373,7 +373,6 @@
         }
         scaleCanvas();
 
-        // Audio initialization decoupled directly from setup buttons
         function ensureAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -414,7 +413,6 @@
             playGame();
         }
 
-        // Dedicated click/touch event bridges for interface menus
         startBtn.addEventListener('click', handleMenuStart);
         playAgainBtn.addEventListener('click', restartGame);
         winPlayAgainBtn.addEventListener('click', restartGame);
@@ -743,7 +741,7 @@
                     ctx.moveTo(obsX + obs.width, obs.y); ctx.lineTo(obsX, obs.y + obs.height / 2); ctx.lineTo(obsX + obs.width, obs.y + obs.height);
                 }
                 ctx.fill();
-                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; stroke();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
             });
 
             itemDrops.forEach(item => {
