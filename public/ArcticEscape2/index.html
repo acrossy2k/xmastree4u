@@ -83,15 +83,15 @@
 
         .name-input-container label {
             display: block;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #03045e;
         }
 
         .name-field {
             width: 100%;
-            padding: 10px 15px;
+            padding: 12px 15px;
             font-size: 1.1rem;
             border: 2px solid #00b4d8;
             border-radius: 15px;
@@ -106,19 +106,19 @@
         .rules-box {
             background: rgba(255, 255, 255, 0.7);
             border: 2px solid #00b4d8;
-            padding: 12px 16px;
+            padding: 15px 20px;
             border-radius: 15px;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            margin-bottom: 20px; 
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 35px; /* Expanded spacing profile pushes button down */
             text-align: left;
-            max-width: 320px;
+            max-width: 340px;
             color: #03045e;
             box-sizing: border-box;
         }
 
         @media (min-height: 650px) {
-            .rules-box { font-size: 0.95rem; margin-bottom: 30px; }
+            .rules-box { font-size: 0.95rem; margin-bottom: 35px; }
             .name-input-container { margin-bottom: 25px; }
             .credit { margin-bottom: 25px; }
         }
@@ -127,7 +127,7 @@
             background: #ffb703;
             color: #023047;
             border: none;
-            padding: 12px 45px;
+            padding: 14px 50px;
             font-size: 1.3rem;
             font-weight: bold;
             border-radius: 25px;
@@ -136,6 +136,7 @@
             font-family: inherit;
             transition: transform 0.1s;
             flex-shrink: 0; /* Prevents browser from shrinking the button shape */
+            touch-action: manipulation;
         }
         .action-btn:hover { background: #fb8500; transform: translateY(-2px); }
         .action-btn:active { transform: translateY(2px); }
@@ -252,7 +253,7 @@
                 • Avoid falling ice spikes! Hitting one boosts speed and squeezes the walls.<br><br>
                 • ❤️ Hearts push walls out. They spawn cleanly spaced between the spikes!
             </div>
-            <button class="action-btn" onclick="initAudioAndPlay()">Start</button>
+            <button id="startBtn" class="action-btn">Start</button>
         </div>
 
         <div id="loseScreen" class="screen" style="display: none;">
@@ -279,7 +280,7 @@
                 Distance: <span id="statDist" style="color:#0077b6;font-weight:bold;">0m</span><br>
                 High Score: <span id="statHigh" style="color:#2ed573;font-weight:bold;">0m</span>
             </div>
-            <button id="playAgainBtn" class="action-btn" onclick="restartGame()">Try Again</button>
+            <button id="playAgainBtn" class="action-btn">Try Again</button>
         </div>
 
         <div id="winScreen" class="screen" style="display: none;">
@@ -297,7 +298,7 @@
             </div>
             <h1 style="color: #2ed573;" id="winTitle">Victory for Mr. Penguini!</h1>
             <p style="font-size: 1.2rem; margin: 10px 0 25px 0; color:#03045e;" id="winDesc">You survived Level 10!</p>
-            <button class="action-btn" onclick="restartGame()">Play Again</button>
+            <button id="winPlayAgainBtn" class="action-btn">Play Again</button>
         </div>
     </div>
 
@@ -308,6 +309,8 @@
         const badge = document.getElementById('levelBadge');
         const banner = document.getElementById('levelUpBanner');
         const playAgainBtn = document.getElementById('playAgainBtn');
+        const winPlayAgainBtn = document.getElementById('winPlayAgainBtn');
+        const startBtn = document.getElementById('startBtn');
         const hudName = document.getElementById('hudPlayerName');
 
         const V_WIDTH = 400;
@@ -370,14 +373,26 @@
         }
         scaleCanvas();
 
+        // Audio initialization decoupled directly from setup buttons
+        function ensureAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                startSynthMusic();
+            } else if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         window.addEventListener('keydown', (e) => {
             if (!isGameRunning || isLevelUpTransition) return;
+            ensureAudioContext();
             if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') triggerSlide('left');
             if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') triggerSlide('right');
         });
 
         canvas.addEventListener('touchstart', (e) => {
             if (!isGameRunning || isLevelUpTransition) return;
+            ensureAudioContext();
             const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
             if (touchX < canvas.width / 2) triggerSlide('left');
             else triggerSlide('right');
@@ -391,20 +406,18 @@
             }
         }
 
-        function initAudioAndPlay() {
+        function handleMenuStart() {
             const nameField = document.getElementById('penguinName');
             playerName = nameField.value.trim() || "Mr. Penguini";
             hudName.textContent = playerName;
-
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                startSynthMusic();
-            } else if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
             document.getElementById('welcomeScreen').style.display = 'none';
             playGame();
         }
+
+        // Dedicated click/touch event bridges for interface menus
+        startBtn.addEventListener('click', handleMenuStart);
+        playAgainBtn.addEventListener('click', restartGame);
+        winPlayAgainBtn.addEventListener('click', restartGame);
 
         function startSynthMusic() {
             nextNoteTime = audioCtx.currentTime;
@@ -696,42 +709,4 @@
 
             ctx.strokeStyle = '#00b4d8';
             ctx.lineWidth = 3;
-            for (let i = 0; i < V_HEIGHT; i += 50) {
-                ctx.beginPath(); ctx.moveTo(lWallX, i); ctx.lineTo(lWallX - 18, i + 25); ctx.lineTo(lWallX, i + 50); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(rWallX, i); ctx.lineTo(rWallX + 18, i + 25); ctx.lineTo(rWallX, i + 50); ctx.stroke();
-            }
-
-            ctx.strokeStyle = '#0077b6';
-            ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(lWallX, 0); ctx.lineTo(lWallX, V_HEIGHT); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(rWallX, 0); ctx.lineTo(rWallX, V_HEIGHT); ctx.stroke();
-
-            if (finishLineY !== null) {
-                let segmentWidth = (rWallX - lWallX) / 10;
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(lWallX, finishLineY, rWallX - lWallX, 16);
-                
-                ctx.fillStyle = '#000000';
-                for (let j = 0; j < 10; j++) {
-                    if (j % 2 === 0) {
-                        ctx.fillRect(lWallX + (j * segmentWidth), finishLineY, segmentWidth, 8);
-                        ctx.fillRect(lWallX + ((j + 1) * segmentWidth), finishLineY + 8, segmentWidth, 8);
-                    }
-                }
-            }
-
-            obstacles.forEach(obs => {
-                let obsX = obs.side === 'left' ? lWallX : rWallX - obs.width;
-                ctx.fillStyle = '#0077b6'; 
-                ctx.beginPath();
-                if (obs.side === 'left') {
-                    ctx.moveTo(obsX, obs.y); ctx.lineTo(obsX + obs.width, obs.y + obs.height / 2); ctx.lineTo(obsX, obs.y + obs.height);
-                } else {
-                    ctx.moveTo(obsX + obs.width, obs.y); ctx.lineTo(obsX, obs.y + obs.height / 2); ctx.lineTo(obsX + obs.width, obs.y + obs.height);
-                }
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-            });
-
-            itemDrops.forEach(item => {
-                let itemX = item.side === 'left' ? lWallX + 20 : rWallX - 20;
+            for (let i = 0;
