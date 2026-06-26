@@ -120,4 +120,394 @@
         }
 
         .cell {
-            background-
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+            position: relative;
+        }
+        .cell:hover {
+            background-color: #fff;
+        }
+
+        /* Scaling internal ice cream scoops relative to cell size */
+        .scoop-graphic {
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            border: 2px solid #555;
+            box-shadow: inset -6px -6px 0px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Mobile selection overlay adjustments */
+        .flavor-screen {
+            position: fixed;
+            z-index: 10;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #fefae0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #selectionTitle {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .flavor-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-direction: column; /* Stack vertically on small screens */
+            align-items: center;
+            width: 100%;
+        }
+
+        @media (min-width: 480px) {
+            .flavor-options { flex-direction: row; justify-content: center; }
+            #selectionTitle { font-size: 2.5rem; }
+        }
+
+        .flavor-card {
+            background: white;
+            padding: 12px;
+            border-radius: 15px;
+            border: 4px solid #ddb892;
+            cursor: pointer;
+            width: 80%;
+            max-width: 180px;
+            display: flex;
+            flex-direction: row; /* Horizontal profile cards look cleaner stacked */
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            box-shadow: 0 4px 0 #ddb892;
+            transition: transform 0.1s;
+        }
+
+        @media (min-width: 480px) {
+            .flavor-card {
+                flex-direction: column;
+                justify-content: center;
+                padding: 20px;
+                width: 130px;
+                box-shadow: 0 6px 0 #ddb892;
+            }
+        }
+
+        .flavor-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .flavor-card .scoop-graphic {
+            width: 45px;
+            height: 45px;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 480px) {
+            .flavor-card .scoop-graphic { width: 70px; height: 70px; }
+        }
+
+        .flavor-name {
+            font-weight: bold;
+            color: #4a4a4a;
+            font-size: 1rem;
+        }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 20; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.4); 
+            align-items: center; justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 100%;
+            text-align: left;
+            border: 4px solid #fb6f92;
+            font-size: 0.95rem;
+        }
+        #closeModalBtn {
+            display: block; margin: 15px auto 0 auto; padding: 10px 20px;
+            background-color: #fb6f92; color: white; border: none;
+            border-radius: 20px; cursor: pointer; font-weight: bold; font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="swirl swirl1"></div>
+    <div class="swirl swirl2"></div>
+
+    <canvas id="sprinkleCanvas"></canvas>
+
+    <div id="flavorScreen" class="flavor-screen">
+        <h1 id="selectionTitle">Player X: Choose Your Flavor!</h1>
+        <div class="flavor-options" id="flavorOptionsContainer"></div>
+    </div>
+
+    <div class="game-container">
+        <h1>Ice Cream Shop</h1>
+        <button id="howToPlayBtn" onclick="toggleModal(true)">How to Play</button>
+        <div id="status">Ready to Order!</div>
+
+        <div class="board" id="gameBoard">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+    </div>
+
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <h2>How to Play</h2>
+            <ol>
+                <li>Pick your favorite custom ice cream flavor to start.</li>
+                <li>Take turns matching flavors on the waffle cone grid.</li>
+                <li>Connect 3 scoops in a row horizontally, vertically, or diagonally to win!</li>
+                <li>The board automatically resets after each match.</li>
+            </ol>
+            <button id="closeModalBtn" onclick="toggleModal(false)">Let's Eat!</button>
+        </div>
+    </div>
+
+    <script>
+        const flavorPool = [
+            { name: "Strawberry", color: "#ff85a1" },
+            { name: "Mint Chip", color: "#a8e6cf" },
+            { name: "Chocolate", color: "#7f5539" },
+            { name: "Vanilla", color: "#fffeb3" },
+            { name: "Bubblegum", color: "#ffc6ff" },
+            { name: "Mango Sorbet", color: "#ffb703" },
+            { name: "Pistachio", color: "#b9fbc0" },
+            { name: "Blue Raz", color: "#90e0ef" },
+            { name: "Cotton Candy", color: "#a0c4ff" },
+            { name: "Matcha", color: "#9ef01a" },
+            { name: "Coffee", color: "#b07d62" },
+            { name: "Lemon Ice", color: "#fdffb6" },
+            { name: "Wild Berry", color: "#cfbaf0" },
+            { name: "Orange Cream", color: "#fbc490" },
+            { name: "Caramel", color: "#f3c68f" }
+        ];
+
+        const cells = document.querySelectorAll('.cell');
+        const statusElement = document.getElementById('status');
+        const flavorScreen = document.getElementById('flavorScreen');
+        const selectionTitle = document.getElementById('selectionTitle');
+        const optionsContainer = document.getElementById('flavorOptionsContainer');
+        const canvas = document.getElementById('sprinkleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentPlayer = 'X';
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let isGameActive = true;
+
+        let playerXFlavor = null;
+        let playerOFlavor = null;
+        let currentOptions = [];
+        let sprinkles = [];
+        let animationFrameId = null;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+
+        function setupFlavorSelection() {
+            optionsContainer.innerHTML = "";
+            selectionTitle.textContent = `Player ${currentPlayer}: Choose Flavor!`;
+            
+            let availableFlavors = flavorPool;
+            if (currentPlayer === 'O' && playerXFlavor) {
+                availableFlavors = flavorPool.filter(f => f.name !== playerXFlavor.name);
+            }
+
+            let shuffled = [...availableFlavors].sort(() => 0.5 - Math.random());
+            currentOptions = shuffled.slice(0, 3);
+
+            currentOptions.forEach((flavor, index) => {
+                const card = document.createElement('div');
+                card.className = 'flavor-card';
+                card.addEventListener('click', () => pickOption(index));
+                card.innerHTML = `
+                    <div class="scoop-graphic" style="background-color: ${flavor.color}"></div>
+                    <div class="flavor-name">${flavor.name}</div>
+                `;
+                optionsContainer.appendChild(card);
+            });
+            
+            flavorScreen.style.display = 'flex';
+        }
+
+        function pickOption(index) {
+            const chosenFlavor = currentOptions[index];
+            if (currentPlayer === 'X') {
+                playerXFlavor = chosenFlavor;
+                currentPlayer = 'O';
+                setupFlavorSelection();
+            } else {
+                playerOFlavor = chosenFlavor;
+                currentPlayer = 'X';
+                flavorScreen.style.display = 'none';
+                updateStatusText();
+            }
+        }
+
+        function handleCellClick(e) {
+            let targetCell = e.target;
+            while (targetCell && !targetCell.classList.contains('cell')) {
+                targetCell = targetCell.parentElement;
+            }
+            if (!targetCell) return;
+
+            const clickedIndex = parseInt(targetCell.getAttribute('data-index'));
+            if (gameState[clickedIndex] !== "" || !isGameActive) return;
+
+            const activeFlavor = currentPlayer === 'X' ? playerXFlavor : playerOFlavor;
+            gameState[clickedIndex] = currentPlayer;
+            targetCell.innerHTML = `<div class="scoop-graphic" style="background-color: ${activeFlavor.color}"></div>`;
+
+            checkResult();
+        }
+
+        function checkResult() {
+            let roundWon = false;
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (gameState[a] !== "" && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                const winnerFlavor = currentPlayer === 'X' ? playerXFlavor : playerOFlavor;
+                statusElement.textContent = `${winnerFlavor.name} Wins! 🍦`;
+                isGameActive = false;
+                explodeSprinkles();
+                setTimeout(resetGame, 3500);
+                return;
+            }
+
+            if (!gameState.includes("")) {
+                statusElement.textContent = "Meltdown! It's a Tie! 🍧";
+                isGameActive = false;
+                setTimeout(resetGame, 2000);
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateStatusText();
+        }
+
+        function updateStatusText() {
+            const activeFlavor = currentPlayer === 'X' ? playerXFlavor : playerOFlavor;
+            statusElement.textContent = `${activeFlavor.name}'s Turn`;
+        }
+
+        function explodeSprinkles() {
+            const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
+            const centerX = boardRect.left + (boardRect.width / 2);
+            const centerY = boardRect.top + (boardRect.height / 2);
+            const colors = ["#ff4757", "#2ed573", "#1e90ff", "#ffa502", "#ff6b81", "#ffffff", "#eccc68"];
+
+            sprinkles = [];
+            for (let i = 0; i < 100; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 3;
+                sprinkles.push({
+                    x: centerX,
+                    y: centerY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 2,
+                    width: Math.random() * 3 + 3,
+                    height: Math.random() * 8 + 8,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+            animateSprinkles();
+        }
+
+        function animateSprinkles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let activeParticles = false;
+
+            sprinkles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.rotation += p.rotationSpeed;
+
+                if (p.y < canvas.height && p.x > 0 && p.x < canvas.width) {
+                    activeParticles = true;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height);
+                    ctx.restore();
+                }
+            });
+
+            if (activeParticles) {
+                animationFrameId = requestAnimationFrame(animateSprinkles);
+            }
+        }
+
+        function resetGame() {
+            cancelAnimationFrame(animationFrameId);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            currentPlayer = 'X';
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            isGameActive = true;
+            playerXFlavor = null;
+            playerOFlavor = null;
+            cells.forEach(cell => cell.innerHTML = "");
+            setupFlavorSelection();
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('rulesModal');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        setupFlavorSelection();
+    </script>
+</body>
+</html>
