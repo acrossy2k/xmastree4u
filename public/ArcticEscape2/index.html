@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arctic Escape 2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
             background-color: #a2d2ff;
             color: #03045e;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport prevents iPhone bar clipping */
             overflow: hidden;
             user-select: none;
         }
@@ -23,8 +24,7 @@
             position: relative;
             width: 100%;
             max-width: 450px;
-            height: 100vh;
-            max-height: 800px;
+            height: 100dvh; /* Forces container to adapt to mobile Safari interfaces */
             background: #bde0fe;
             box-shadow: 0 10px 30px rgba(3, 4, 94, 0.2);
             display: flex;
@@ -32,6 +32,7 @@
             overflow: hidden;
             border: 4px solid #00b4d8;
             border-radius: 12px;
+            box-sizing: border-box;
         }
 
         canvas {
@@ -49,7 +50,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 20px;
             box-sizing: border-box;
             text-align: center;
             z-index: 10;
@@ -57,36 +58,40 @@
 
         h1 {
             color: #0077b6;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin: 0 0 5px 0;
             text-shadow: 2px 2px 0px #fff;
+        }
+
+        @media (min-height: 650px) {
+            h1 { font-size: 2.5rem; }
         }
 
         .credit {
             font-size: 0.9rem;
             color: #0096c7;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             letter-spacing: 1px;
             font-weight: bold;
         }
 
         .name-input-container {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             width: 100%;
             max-width: 280px;
         }
 
         .name-input-container label {
             display: block;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #03045e;
         }
 
         .name-field {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 15px;
             font-size: 1.1rem;
             border: 2px solid #00b4d8;
             border-radius: 15px;
@@ -95,26 +100,34 @@
             outline: none;
             color: #03045e;
             box-sizing: border-box;
+            background-color: #fff;
         }
 
         .rules-box {
             background: rgba(255, 255, 255, 0.7);
             border: 2px solid #00b4d8;
-            padding: 15px 20px;
+            padding: 12px 16px;
             border-radius: 15px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 35px; /* Expanded spacing profile pushes button down */
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 20px; 
             text-align: left;
-            max-width: 340px;
+            max-width: 320px;
             color: #03045e;
+            box-sizing: border-box;
+        }
+
+        @media (min-height: 650px) {
+            .rules-box { font-size: 0.95rem; margin-bottom: 30px; }
+            .name-input-container { margin-bottom: 25px; }
+            .credit { margin-bottom: 25px; }
         }
 
         .action-btn {
             background: #ffb703;
             color: #023047;
             border: none;
-            padding: 14px 50px;
+            padding: 12px 45px;
             font-size: 1.3rem;
             font-weight: bold;
             border-radius: 25px;
@@ -122,6 +135,7 @@
             box-shadow: 0 5px 0 #fb8500;
             font-family: inherit;
             transition: transform 0.1s;
+            flex-shrink: 0; /* Prevents browser from shrinking the button shape */
         }
         .action-btn:hover { background: #fb8500; transform: translateY(-2px); }
         .action-btn:active { transform: translateY(2px); }
@@ -395,7 +409,7 @@
         function startSynthMusic() {
             nextNoteTime = audioCtx.currentTime;
             musicIntervalId = setInterval(() => {
-                if (!isGameRunning) return; // Halt loop notes if state is dead
+                if (!isGameRunning) return;
                 while (nextNoteTime < audioCtx.currentTime + 0.1) {
                     scheduleNote(stepCount, nextNoteTime);
                     let currentBpm = level === 10 ? 122 : 130 + (level * 6);
@@ -460,11 +474,10 @@
             noise.start();
         }
 
-        // Programmatic synth sound triggers for endgame states
         function playSadBooHooSong() {
             if (!audioCtx) return;
             let now = audioCtx.currentTime;
-            const notes = [45, 44, 43, 41]; // Descending sad trombone hook pitches
+            const notes = [45, 44, 43, 41]; 
             notes.forEach((note, i) => {
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
@@ -482,7 +495,7 @@
         function playHappyCheerSong() {
             if (!audioCtx) return;
             let now = audioCtx.currentTime;
-            const notes = [52, 55, 60, 64, 67, 72]; // Ascending rapid cheer flourish tones
+            const notes = [52, 55, 60, 64, 67, 72]; 
             notes.forEach((note, i) => {
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
@@ -559,7 +572,6 @@
                 return;
             }
 
-            // Scrolls finish line down from the top at matching obstacle velocity parameters
             if (isGameRunning && !isLevelUpTransition) {
                 let remainingMeters = targetLevelDistance - distanceMeters;
                 if (remainingMeters <= 25) {
@@ -614,12 +626,11 @@
                     };
                     obstacles.push(newSpike);
 
-                    // Centers heart perfectly between current and trailing spike window
                     if (spikesHitThisLevel > 0 && totalIceChannelWidth > 150 && heartsSpawnedThisLevel < maxHeartsAllowedThisLevel && Math.random() < 0.25) {
                         let rewardSide = player.side === 'left' ? 'right' : 'left';
                         itemDrops.push({
                             side: rewardSide,
-                            y: newSpike.y - (spawnInterval * currentSpeed / 2), // Midpoint positioning calculation
+                            y: newSpike.y - (spawnInterval * currentSpeed / 2), 
                             radius: 14
                         });
                         heartsSpawnedThisLevel++;
@@ -724,111 +735,3 @@
 
             itemDrops.forEach(item => {
                 let itemX = item.side === 'left' ? lWallX + 20 : rWallX - 20;
-                ctx.save();
-                ctx.translate(itemX, item.y);
-                ctx.fillStyle = '#ff4d6d';
-                ctx.beginPath();
-                ctx.moveTo(0, -4);
-                ctx.bezierCurveTo(-6, -10, -12, -4, -12, 2);
-                ctx.bezierCurveTo(-12, 10, 0, 16, 0, 20);
-                ctx.bezierCurveTo(0, 16, 12, 10, 12, 2);
-                ctx.bezierCurveTo(12, -4, 6, -10, 0, -4);
-                ctx.fill();
-                ctx.restore();
-            });
-
-            if (isGameRunning) {
-                ctx.save();
-                ctx.translate(player.visualX + player.width / 2, player.y + player.height / 2);
-
-                if (player.slideProgress < 1.0) {
-                    ctx.rotate(player.side === 'right' ? 0.15 : -0.15);
-                }
-
-                ctx.fillStyle = '#1e222a';
-                ctx.beginPath(); ctx.ellipse(0, 4, player.width / 2, player.height / 2.2, 0, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.ellipse(0, -4, player.width / 2.6, player.height / 3.5, 0, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#2b2d42';
-                ctx.beginPath(); ctx.ellipse(-player.width / 2, 10, 5, 11, Math.PI / 3, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(player.width / 2, 10, 5, 11, -Math.PI / 3, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#1e222a';
-                ctx.beginPath(); ctx.arc(0, -player.height / 2.5, player.width / 3.2, 0, Math.PI * 2); ctx.fill();
-
-                ctx.fillStyle = '#ff9f1c';
-                ctx.beginPath(); ctx.moveTo(-4, -player.height / 2 - 2); ctx.lineTo(4, -player.height / 2 - 2); ctx.lineTo(0, -player.height / 2 - 9); ctx.fill();
-
-                ctx.fillStyle = '#ff9f1c';
-                ctx.fillRect(-10, player.height / 2 - 2, 5, 4); ctx.fillRect(5, player.height / 2 - 2, 5, 4);
-                ctx.restore();
-            }
-
-            confetti.forEach(p => {
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                ctx.restore();
-            });
-        }
-
-        function triggerConfettiShower() {
-            const blueShades = ['#03045e', '#023047', '#0077b6', '#0096c7', '#00b4d8', '#4cc9f0', '#90e0ef', '#a2d2ff', '#e2f0d9'];
-            for (let i = 0; i < 120; i++) {
-                confetti.push({
-                    x: Math.random() * V_WIDTH,
-                    y: Math.random() * -V_HEIGHT, 
-                    size: Math.random() * 6 + 6,
-                    color: blueShades[Math.floor(Math.random() * blueShades.length)],
-                    speedY: Math.random() * 3 + 2,
-                    speedX: Math.random() * 2 - 1,
-                    rotation: Math.random() * Math.PI,
-                    rotationSpeed: Math.random() * 0.04 - 0.02
-                });
-            }
-        }
-
-        function triggerEndgame(didWin) {
-            isGameRunning = false;
-            let finalDist = Math.floor(distanceMeters);
-            if (finalDist > highScore) {
-                highScore = finalDist;
-                localStorage.setItem('arctic_high', highScore);
-            }
-
-            if (didWin) {
-                document.getElementById('winTitle').textContent = `Victory for ${playerName}!`;
-                triggerConfettiShower();
-                playHappyCheerSong(); // Cheer SFX
-                document.getElementById('winScreen').style.display = 'flex';
-            } else {
-                document.getElementById('loseTitle').textContent = `${playerName} was crushed!`;
-                document.getElementById('statLevel').textContent = level;
-                document.getElementById('statDist').textContent = `${finalDist}m`;
-                document.getElementById('statHigh').textContent = `${highScore}m`;
-                playSadBooHooSong(); // Sad trombone SFX
-                document.getElementById('loseScreen').style.display = 'flex';
-                playAgainBtn.style.display = 'block';
-            }
-        }
-
-        function restartGame() {
-            document.getElementById('loseScreen').style.display = 'none';
-            document.getElementById('winScreen').style.display = 'none';
-            playAgainBtn.style.display = 'none';
-            
-            level = 1;
-            stepCount = 0;
-            player.side = 'left';
-            player.slideProgress = 1.0;
-            player.visualX = wallBaseWidth;
-            
-            playGame();
-        }
-    </script>
-</body>
-</html>
