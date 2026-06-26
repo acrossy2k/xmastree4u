@@ -42,6 +42,16 @@
             display: block;
         }
 
+        /* Dedicated Top-Layer Overlay Canvas just for the front-facing confetti */
+        #confettiCanvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Allows click-throughs to buttons beneath */
+            z-index: 99; /* Higher than screens to appear right in front */
+            background: transparent;
+            display: none;
+        }
+
         .screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -110,7 +120,7 @@
             border-radius: 15px;
             font-size: 0.95rem;
             line-height: 1.6;
-            margin-bottom: 35px; /* Expanded spacing profile pushes button down */
+            margin-bottom: 35px;
             text-align: left;
             max-width: 340px;
             color: #03045e;
@@ -135,7 +145,7 @@
             box-shadow: 0 5px 0 #fb8500;
             font-family: inherit;
             transition: transform 0.1s;
-            flex-shrink: 0; /* Prevents browser from shrinking the button shape */
+            flex-shrink: 0;
             touch-action: manipulation;
         }
         .action-btn:hover { background: #fb8500; transform: translateY(-2px); }
@@ -239,6 +249,8 @@
 
         <canvas id="gameCanvas"></canvas>
 
+        <canvas id="confettiCanvas"></canvas>
+
         <div id="welcomeScreen" class="screen">
             <h1>Arctic Escape 2.0</h1>
             <div class="credit">designed by LE</div>
@@ -305,6 +317,9 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const cCtx = confettiCanvas.getContext('2d');
+
         const meterText = document.getElementById('meterText');
         const badge = document.getElementById('levelBadge');
         const banner = document.getElementById('levelUpBanner');
@@ -330,13 +345,13 @@
             width: 44,
             height: 52,
             slideProgress: 1.0,
-            speedX: 9.6 // Calibrated standard tracking frame modifier
+            speedX: 10.0 // True frame-independent increment steps
         };
 
         let wallCollapse = 0;
         let wallBaseWidth = 55;
         let currentSpeed = 300; 
-        let targetLevelDistance = 250; 
+        let targetLevelDistance = 250;
 
         let obstacles = [];
         let itemDrops = []; 
@@ -344,8 +359,8 @@
         let finishLineY = null; 
         let finishSpawned = false;
         
-        let obstacleTimer = 0;
-        let currentSpawnInterval = 1200; 
+        let lastSpawnTime = 0; 
+        let currentSpawnInterval = 330; 
         
         let heartsSpawnedThisLevel = 0;
         let maxHeartsAllowedThisLevel = 1;
@@ -374,6 +389,8 @@
         function scaleCanvas() {
             canvas.width = V_WIDTH;
             canvas.height = V_HEIGHT;
+            confettiCanvas.width = V_WIDTH;
+            confettiCanvas.height = V_HEIGHT;
         }
         scaleCanvas();
 
@@ -529,8 +546,11 @@
             isGameRunning = true;
             isLevelUpTransition = false;
             confetti = [];
+            confettiCanvas.style.display = 'none';
             resetLevelParameters();
-            lastTime = performance.now();
+            let now = performance.now();
+            lastTime = now;
+            lastSpawnTime = now; 
             requestAnimationFrame(gameLoop);
         }
 
@@ -539,7 +559,6 @@
             itemDrops = [];
             finishLineY = null;
             finishSpawned = false;
-            obstacleTimer = 0;
             distanceMeters = 0;
             wallCollapse = 0;
             heartsSpawnedThisLevel = 0;
@@ -547,7 +566,7 @@
             maxHeartsAllowedThisLevel = Math.random() < 0.5 ? 1 : 2;
             
             currentSpeed = level === 10 ? 840 : 300 + (level * 57); 
-            currentSpawnInterval = Math.max(1300 - (level * 65), 550); 
+            currentSpawnInterval = level === 10 ? 150 : Math.max(330 - (level * 16), 180); 
             
             badge.textContent = `Level ${level}`;
             meterText.textContent = `0m`;
@@ -566,6 +585,9 @@
                 banner.style.display = 'none';
                 isLevelUpTransition = false;
                 resetLevelParameters();
+                let cleanNow = performance.now();
+                lastTime = cleanNow;
+                lastSpawnTime = cleanNow;
             }, 1400);
         }
 
@@ -576,15 +598,15 @@
             if (dt > 0.1) dt = 0.1; 
             lastTime = timestamp;
 
-            updatePhysics(dt);
+            updatePhysics(dt, timestamp);
             drawFrame();
             requestAnimationFrame(gameLoop);
         }
 
-        function updatePhysics(dt) {
+        function updatePhysics(dt, timestamp) {
             if (isGameRunning && !isLevelUpTransition) {
-                // Stabilized tracker scale so meter progression aligns perfectly with visual map speed
-                distanceMeters += currentSpeed * dt * 0.05; 
+                // Calibrated meter progression scaling down tracking speed uniformly
+                distanceMeters += currentSpeed * dt * 0.015; 
                 meterText.textContent = `${Math.floor(distanceMeters)}m`;
             }
 
@@ -619,9 +641,9 @@
                 }
             }
 
-            // Fixed sliding progress scaling so penguin responds instantly at high refresh rates
+            // Repaired slide increments to progress smoothly at all refresh profiles
             if (isGameRunning && player.slideProgress < 1.0) {
-                player.slideProgress += player.speedX * (dt * 60); 
+                player.slideProgress += player.speedX * dt; 
                 if (player.slideProgress > 1.0) player.slideProgress = 1.0;
             }
 
@@ -638,9 +660,8 @@
             if (player.visualX > rWallX - player.width) player.visualX = rWallX - player.width;
 
             if (isGameRunning && !isLevelUpTransition && targetLevelDistance - distanceMeters > 20) {
-                obstacleTimer += dt * 1000;
-                if (obstacleTimer >= currentSpawnInterval) {
-                    obstacleTimer = 0;
+                if (timestamp - lastSpawnTime >= currentSpawnInterval) {
+                    lastSpawnTime = timestamp; 
                     let targetSide = Math.random() < 0.5 ? 'left' : 'right';
                     
                     let newSpike = {
@@ -711,6 +732,7 @@
 
         function drawFrame() {
             ctx.clearRect(0, 0, V_WIDTH, V_HEIGHT);
+            cCtx.clearRect(0, 0, V_WIDTH, V_HEIGHT);
 
             let lWallX = wallBaseWidth + wallCollapse;
             let rWallX = V_WIDTH - (wallBaseWidth + wallCollapse);
@@ -803,22 +825,23 @@
             }
 
             confetti.forEach(p => {
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                ctx.restore();
+                cCtx.save();
+                cCtx.translate(p.x, p.y);
+                cCtx.rotate(p.rotation);
+                cCtx.fillStyle = p.color;
+                cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                cCtx.restore();
             });
         }
 
         function triggerConfettiShower() {
-            const blueShades = ['#03045e', '#023047', '#0077b6', '#0096c7', '#00b4d8', '#4cc9f0', '#90e0ef', '#a2d2ff', '#e2f0d9'];
+            confettiCanvas.style.display = 'block'; 
+            const blueShades = ['#03045e', '#023047', '#0077b6', '#0096c7', '#00b4d8', '#4cc9f0', '#90e0ef', '#a2d2ff'];
             for (let i = 0; i < 120; i++) {
                 confetti.push({
                     x: Math.random() * V_WIDTH,
                     y: Math.random() * -V_HEIGHT, 
-                    size: Math.random() * 6 + 6,
+                    size: Math.random() * 6 + 7,
                     color: blueShades[Math.floor(Math.random() * blueShades.length)],
                     speedY: Math.random() * 3 + 2,
                     speedX: Math.random() * 2 - 1,
@@ -856,6 +879,8 @@
             document.getElementById('loseScreen').style.display = 'none';
             document.getElementById('winScreen').style.display = 'none';
             playAgainBtn.style.display = 'none';
+            confettiCanvas.style.display = 'none';
+            confetti = [];
             
             level = 1;
             stepCount = 0;
