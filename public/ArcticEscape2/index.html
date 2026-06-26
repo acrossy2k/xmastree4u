@@ -330,12 +330,12 @@
             width: 44,
             height: 52,
             slideProgress: 1.0,
-            speedX: 0.16
+            speedX: 9.6 // Refactored to delta standard coefficients (approx 0.16 * 60)
         };
 
         let wallCollapse = 0;
         let wallBaseWidth = 55;
-        let currentSpeed = 5.0;
+        let currentSpeed = 300; // Calibrated base pixel speed per second standard (5.0 * 60)
         let targetLevelDistance = 250; 
 
         let obstacles = [];
@@ -343,11 +343,16 @@
         let confetti = []; 
         let finishLineY = null; 
         let finishSpawned = false;
+        
         let obstacleTimer = 0;
+        let currentSpawnInterval = 1200; // Track in milliseconds instead of raw layout frame ticks
         
         let heartsSpawnedThisLevel = 0;
         let maxHeartsAllowedThisLevel = 1;
         let spikesHitThisLevel = 0;
+
+        // Delta-Time Clock Anchors
+        let lastTime = 0;
 
         let audioCtx = null;
         let stepCount = 0;
@@ -526,6 +531,7 @@
             isLevelUpTransition = false;
             confetti = [];
             resetLevelParameters();
+            lastTime = performance.now();
             requestAnimationFrame(gameLoop);
         }
 
@@ -540,7 +546,11 @@
             heartsSpawnedThisLevel = 0;
             spikesHitThisLevel = 0;
             maxHeartsAllowedThisLevel = Math.random() < 0.5 ? 1 : 2;
-            currentSpeed = level === 10 ? 14.0 : 5.0 + (level * 0.95);
+            
+            // Scaled parameters to abstract velocity profiles cleanly
+            currentSpeed = level === 10 ? 840 : 300 + (level * 57); 
+            currentSpawnInterval = Math.max(1300 - (level * 65), 550); // Clock tracker intervals in milliseconds
+            
             badge.textContent = `Level ${level}`;
             meterText.textContent = `0m`;
         }
@@ -561,16 +571,22 @@
             }, 1400);
         }
 
-        function gameLoop() {
+        function gameLoop(timestamp) {
             if (!isGameRunning && confetti.length === 0) return;
-            updatePhysics();
+            
+            // Calculate absolute elapsed delta fraction
+            let dt = (timestamp - lastTime) / 1000;
+            if (dt > 0.1) dt = 0.1; // Caps extreme skips from background switching latency
+            lastTime = timestamp;
+
+            updatePhysics(dt);
             drawFrame();
             requestAnimationFrame(gameLoop);
         }
 
-        function updatePhysics() {
+        function updatePhysics(dt) {
             if (isGameRunning && !isLevelUpTransition) {
-                distanceMeters += currentSpeed * 0.015;
+                distanceMeters += (currentSpeed * dt) * 0.09; // Adjusted meter tracking scalar
                 meterText.textContent = `${Math.floor(distanceMeters)}m`;
             }
 
@@ -590,7 +606,7 @@
                         finishLineY = -30;
                         finishSpawned = true;
                     }
-                    finishLineY += currentSpeed;
+                    finishLineY += currentSpeed * dt;
 
                     if (finishLineY >= player.y + player.height / 2) {
                         if (level >= 10) {
@@ -606,7 +622,7 @@
             }
 
             if (isGameRunning && player.slideProgress < 1.0) {
-                player.slideProgress += player.speedX;
+                player.slideProgress += player.speedX * dt;
                 if (player.slideProgress > 1.0) player.slideProgress = 1.0;
             }
 
@@ -623,9 +639,8 @@
             if (player.visualX > rWallX - player.width) player.visualX = rWallX - player.width;
 
             if (isGameRunning && !isLevelUpTransition && targetLevelDistance - distanceMeters > 20) {
-                obstacleTimer++;
-                let spawnInterval = Math.max(20 - level, 9);
-                if (obstacleTimer >= spawnInterval) {
+                obstacleTimer += dt * 1000;
+                if (obstacleTimer >= currentSpawnInterval) {
                     obstacleTimer = 0;
                     let targetSide = Math.random() < 0.5 ? 'left' : 'right';
                     
@@ -641,7 +656,7 @@
                         let rewardSide = player.side === 'left' ? 'right' : 'left';
                         itemDrops.push({
                             side: rewardSide,
-                            y: newSpike.y - (spawnInterval * currentSpeed / 2), 
+                            y: newSpike.y - (currentSpawnInterval * (currentSpeed / 1000) / 2), 
                             radius: 14
                         });
                         heartsSpawnedThisLevel++;
@@ -651,14 +666,14 @@
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
-                if (!isLevelUpTransition) obs.y += currentSpeed;
+                if (!isLevelUpTransition) obs.y += currentSpeed * dt;
 
                 let obsWallX = obs.side === 'left' ? lWallX : rWallX - obs.width;
 
                 if (isGameRunning && obs.y + obs.height >= player.y && obs.y <= player.y + player.height) {
                     if (player.visualX + player.width >= obsWallX && player.visualX <= obsWallX + obs.width) {
                         playIceBreakSound();
-                        currentSpeed += 1.3 + (level * 0.1);
+                        currentSpeed += 78 + (level * 6); // Delta-tuned structural speed multipliers
                         wallCollapse += 15; 
                         spikesHitThisLevel++; 
                         obstacles.splice(i, 1);
@@ -670,7 +685,7 @@
 
             for (let i = itemDrops.length - 1; i >= 0; i--) {
                 let item = itemDrops[i];
-                if (!isLevelUpTransition) item.y += currentSpeed;
+                if (!isLevelUpTransition) item.y += currentSpeed * dt;
 
                 let itemX = item.side === 'left' ? lWallX + 20 : rWallX - 20;
 
@@ -688,9 +703,9 @@
 
             for (let i = confetti.length - 1; i >= 0; i--) {
                 let p = confetti[i];
-                p.y += p.speedY;
-                p.x += p.speedX;
-                p.rotation += p.rotationSpeed;
+                p.y += p.speedY * dt * 60;
+                p.x += p.speedX * dt * 60;
+                p.rotation += p.rotationSpeed * dt * 60;
                 if (p.y > V_HEIGHT) confetti.splice(i, 1);
             }
         }
