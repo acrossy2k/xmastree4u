@@ -330,12 +330,12 @@
             width: 44,
             height: 52,
             slideProgress: 1.0,
-            speedX: 9.6 // Refactored to delta standard coefficients (approx 0.16 * 60)
+            speedX: 9.6 // Calibrated standard tracking frame modifier
         };
 
         let wallCollapse = 0;
         let wallBaseWidth = 55;
-        let currentSpeed = 300; // Calibrated base pixel speed per second standard (5.0 * 60)
+        let currentSpeed = 300; 
         let targetLevelDistance = 250; 
 
         let obstacles = [];
@@ -345,13 +345,12 @@
         let finishSpawned = false;
         
         let obstacleTimer = 0;
-        let currentSpawnInterval = 1200; // Track in milliseconds instead of raw layout frame ticks
+        let currentSpawnInterval = 1200; 
         
         let heartsSpawnedThisLevel = 0;
         let maxHeartsAllowedThisLevel = 1;
         let spikesHitThisLevel = 0;
 
-        // Delta-Time Clock Anchors
         let lastTime = 0;
 
         let audioCtx = null;
@@ -547,9 +546,8 @@
             spikesHitThisLevel = 0;
             maxHeartsAllowedThisLevel = Math.random() < 0.5 ? 1 : 2;
             
-            // Scaled parameters to abstract velocity profiles cleanly
             currentSpeed = level === 10 ? 840 : 300 + (level * 57); 
-            currentSpawnInterval = Math.max(1300 - (level * 65), 550); // Clock tracker intervals in milliseconds
+            currentSpawnInterval = Math.max(1300 - (level * 65), 550); 
             
             badge.textContent = `Level ${level}`;
             meterText.textContent = `0m`;
@@ -574,9 +572,8 @@
         function gameLoop(timestamp) {
             if (!isGameRunning && confetti.length === 0) return;
             
-            // Calculate absolute elapsed delta fraction
             let dt = (timestamp - lastTime) / 1000;
-            if (dt > 0.1) dt = 0.1; // Caps extreme skips from background switching latency
+            if (dt > 0.1) dt = 0.1; 
             lastTime = timestamp;
 
             updatePhysics(dt);
@@ -586,7 +583,8 @@
 
         function updatePhysics(dt) {
             if (isGameRunning && !isLevelUpTransition) {
-                distanceMeters += (currentSpeed * dt) * 0.09; // Adjusted meter tracking scalar
+                // Stabilized tracker scale so meter progression aligns perfectly with visual map speed
+                distanceMeters += currentSpeed * dt * 0.05; 
                 meterText.textContent = `${Math.floor(distanceMeters)}m`;
             }
 
@@ -621,8 +619,9 @@
                 }
             }
 
+            // Fixed sliding progress scaling so penguin responds instantly at high refresh rates
             if (isGameRunning && player.slideProgress < 1.0) {
-                player.slideProgress += player.speedX * dt;
+                player.slideProgress += player.speedX * (dt * 60); 
                 if (player.slideProgress > 1.0) player.slideProgress = 1.0;
             }
 
@@ -673,7 +672,7 @@
                 if (isGameRunning && obs.y + obs.height >= player.y && obs.y <= player.y + player.height) {
                     if (player.visualX + player.width >= obsWallX && player.visualX <= obsWallX + obs.width) {
                         playIceBreakSound();
-                        currentSpeed += 78 + (level * 6); // Delta-tuned structural speed multipliers
+                        currentSpeed += 78; 
                         wallCollapse += 15; 
                         spikesHitThisLevel++; 
                         obstacles.splice(i, 1);
