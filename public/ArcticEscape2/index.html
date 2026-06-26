@@ -709,4 +709,150 @@
 
             ctx.strokeStyle = '#00b4d8';
             ctx.lineWidth = 3;
-            for (let i = 0;
+            for (let i = 0; i < V_HEIGHT; i += 50) {
+                ctx.beginPath(); ctx.moveTo(lWallX, i); ctx.lineTo(lWallX - 18, i + 25); ctx.lineTo(lWallX, i + 50); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(rWallX, i); ctx.lineTo(rWallX + 18, i + 25); ctx.lineTo(rWallX, i + 50); ctx.stroke();
+            }
+
+            ctx.strokeStyle = '#0077b6';
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(lWallX, 0); ctx.lineTo(lWallX, V_HEIGHT); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(rWallX, 0); ctx.lineTo(rWallX, V_HEIGHT); ctx.stroke();
+
+            if (finishLineY !== null) {
+                let segmentWidth = (rWallX - lWallX) / 10;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(lWallX, finishLineY, rWallX - lWallX, 16);
+                
+                ctx.fillStyle = '#000000';
+                for (let j = 0; j < 10; j++) {
+                    if (j % 2 === 0) {
+                        ctx.fillRect(lWallX + (j * segmentWidth), finishLineY, segmentWidth, 8);
+                        ctx.fillRect(lWallX + ((j + 1) * segmentWidth), finishLineY + 8, segmentWidth, 8);
+                    }
+                }
+            }
+
+            obstacles.forEach(obs => {
+                let obsX = obs.side === 'left' ? lWallX : rWallX - obs.width;
+                ctx.fillStyle = '#0077b6'; 
+                ctx.beginPath();
+                if (obs.side === 'left') {
+                    ctx.moveTo(obsX, obs.y); ctx.lineTo(obsX + obs.width, obs.y + obs.height / 2); ctx.lineTo(obsX, obs.y + obs.height);
+                } else {
+                    ctx.moveTo(obsX + obs.width, obs.y); ctx.lineTo(obsX, obs.y + obs.height / 2); ctx.lineTo(obsX + obs.width, obs.y + obs.height);
+                }
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; stroke();
+            });
+
+            itemDrops.forEach(item => {
+                let itemX = item.side === 'left' ? lWallX + 20 : rWallX - 20;
+                ctx.save();
+                ctx.translate(itemX, item.y);
+                ctx.fillStyle = '#ff4d6d';
+                ctx.beginPath();
+                ctx.moveTo(0, -4);
+                ctx.bezierCurveTo(-6, -10, -12, -4, -12, 2);
+                ctx.bezierCurveTo(-12, 10, 0, 16, 0, 20);
+                ctx.bezierCurveTo(0, 16, 12, 10, 12, 2);
+                ctx.bezierCurveTo(12, -4, 6, -10, 0, -4);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            if (isGameRunning) {
+                ctx.save();
+                ctx.translate(player.visualX + player.width / 2, player.y + player.height / 2);
+
+                if (player.slideProgress < 1.0) {
+                    ctx.rotate(player.side === 'right' ? 0.15 : -0.15);
+                }
+
+                ctx.fillStyle = '#1e222a';
+                ctx.beginPath(); ctx.ellipse(0, 4, player.width / 2, player.height / 2.2, 0, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.ellipse(0, -4, player.width / 2.6, player.height / 3.5, 0, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#2b2d42';
+                ctx.beginPath(); ctx.ellipse(-player.width / 2, 10, 5, 11, Math.PI / 3, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(player.width / 2, 10, 5, 11, -Math.PI / 3, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#1e222a';
+                ctx.beginPath(); ctx.arc(0, -player.height / 2.5, player.width / 3.2, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#ff9f1c';
+                ctx.beginPath(); ctx.moveTo(-4, -player.height / 2 - 2); ctx.lineTo(4, -player.height / 2 - 2); ctx.lineTo(0, -player.height / 2 - 9); ctx.fill();
+
+                ctx.fillStyle = '#ff9f1c';
+                ctx.fillRect(-10, player.height / 2 - 2, 5, 4); ctx.fillRect(5, player.height / 2 - 2, 5, 4);
+                ctx.restore();
+            }
+
+            confetti.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+        }
+
+        function triggerConfettiShower() {
+            const blueShades = ['#03045e', '#023047', '#0077b6', '#0096c7', '#00b4d8', '#4cc9f0', '#90e0ef', '#a2d2ff', '#e2f0d9'];
+            for (let i = 0; i < 120; i++) {
+                confetti.push({
+                    x: Math.random() * V_WIDTH,
+                    y: Math.random() * -V_HEIGHT, 
+                    size: Math.random() * 6 + 6,
+                    color: blueShades[Math.floor(Math.random() * blueShades.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * Math.PI,
+                    rotationSpeed: Math.random() * 0.04 - 0.02
+                });
+            }
+        }
+
+        function triggerEndgame(didWin) {
+            isGameRunning = false;
+            let finalDist = Math.floor(distanceMeters);
+            if (finalDist > highScore) {
+                highScore = finalDist;
+                localStorage.setItem('arctic_high', highScore);
+            }
+
+            if (didWin) {
+                document.getElementById('winTitle').textContent = `Victory for ${playerName}!`;
+                triggerConfettiShower();
+                playHappyCheerSong(); 
+                document.getElementById('winScreen').style.display = 'flex';
+            } else {
+                document.getElementById('loseTitle').textContent = `${playerName} was crushed!`;
+                document.getElementById('statLevel').textContent = level;
+                document.getElementById('statDist').textContent = `${finalDist}m`;
+                document.getElementById('statHigh').textContent = `${highScore}m`;
+                playSadBooHooSong(); 
+                document.getElementById('loseScreen').style.display = 'flex';
+                playAgainBtn.style.display = 'block';
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('loseScreen').style.display = 'none';
+            document.getElementById('winScreen').style.display = 'none';
+            playAgainBtn.style.display = 'none';
+            
+            level = 1;
+            stepCount = 0;
+            player.side = 'left';
+            player.slideProgress = 1.0;
+            player.visualX = wallBaseWidth;
+            
+            playGame();
+        }
+    </script>
+</body>
+</html>
